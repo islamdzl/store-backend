@@ -1,5 +1,5 @@
 import StoreService from './store.service.js'
-import UploadService from '../upload/upload.service.js'
+import UploadService, { } from '../upload/upload.service.js'
 import * as StoreValidate from './store.validate.js'
 import AppResponse, { useAppResponse, catchAppError, ScreenMessageType } from '../../shared/app-response.js';
 
@@ -27,19 +27,25 @@ export const update: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
     }
 
     if (value.logo) {
-      await new UploadService([value.logo])
-      .distinationDir('')
-      .setStaticFileName('store-logo.png')
-      .replace(['store-logo.png'])
-      .Execute(user._id)
+      await new UploadService()
+      .removeFilesPaths(['store-logo.png'])
+      .staticFile('store-logo.png')
+      .saveFilesIds([value.logo])
+      .destinationDirectory('')
+      .processType('LOGO')
+      .user(user._id)
+      .Execute()
     }
 
     if (value.banner) {
-      await new UploadService([value.banner])
-      .distinationDir('')
-      .setStaticFileName('store-banner.png')
-      .replace(['store-banner.png'])
-      .Execute(user._id)
+      await new UploadService()
+      .removeFilesPaths(['store-banner.png'])
+      .staticFile('store-banner.png')
+      .saveFilesIds([value.banner])
+      .destinationDirectory('')
+      .processType('BANNER')
+      .user(user._id)
+      .Execute()
     }
 
     useAppResponse(res, 

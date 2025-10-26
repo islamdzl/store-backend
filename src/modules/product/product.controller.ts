@@ -3,6 +3,7 @@ import * as ProductValidate from './product.validate.js'
 import * as Services from '../../shared/services.js'
 import * as UserService from '../user/user.service.js'
 import * as OrderService from '../order/order.service.js'
+import * as CategoryService from '../category/category.service.js'
 import UploadService from '../upload/upload.service.js'
 import AppResponse, { useAppResponse, catchAppError, ScreenMessageType } from '../../shared/app-response.js';
 import type { HydratedDocument } from 'mongoose';
@@ -74,10 +75,16 @@ export const create: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
 
 
     const product = await Services.withSession<HydratedDocument<Product>>( async(session)=> {
-      const filesResult = await new UploadService(value.images)
-      .distinationDir('products-images')
-      .setSession(session)
-      .Execute(user._id, true)
+      const classification = await CategoryService.createProductValidateCategoryAndBranch(value.branchId!)
+      const savedFilesPaths = await new UploadService()
+      .destinationDirectory('products-images')
+      .saveFilesIds(value.images)
+      .force(value.images.length)
+      .processType('PRODUCT_IMAGE')
+      .session(session)
+      .user(user._id)
+      .Execute()
+      .then((r)=> r.getSavedPaths())
 
       const newProduct: Product.Create = {
         isActive: true,
@@ -86,7 +93,8 @@ export const create: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
         name: value.name,
         price: value.price,
         description: value.description,
-        images: filesResult!.map((payload)=> payload!.path)
+        images: savedFilesPaths,
+        classification
       }
       const product = await ProductService.createProduct(newProduct, session)
       return product;
@@ -125,14 +133,19 @@ export const update: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
     const product = await ProductService.getProduct(value.productId, true) as HydratedDocument<Product>
     
     const updatedProduct = await Services.withSession<HydratedDocument<Product>>( async(session)=> {
-      const payloads = await new UploadService(value.AImages)
-      .distinationDir('products-images')
-      .replace(value.RImages)
-      .setSession(session)
-      .Execute(user._id)
+      const savedImagesPaths = await new UploadService()
+      .destinationDirectory('products-images')
+      .removeFilesPaths(value.RImages)
+      .saveFilesIds(value.AImages)
+      .force(value.AImages.length)
+      .processType('PRODUCT_IMAGE')
+      .session(session)
+      .user(user._id)
+      .Execute()
+      .then((r)=> r.getSavedPaths())
   
       const productImages = product.images.filter((p)=> ! value.RImages.includes(p))
-      .concat(payloads.map((payl)=> payl!.path))
+      .concat(savedImagesPaths)
   
       const updates: Partial<Product> = {
         name: value.name,

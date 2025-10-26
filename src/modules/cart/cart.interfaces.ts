@@ -9,8 +9,14 @@ declare global {
   }
   
   namespace Cart {
-    interface RequestAddItem extends Omit<Cart, 'ownerId'> {}
-    interface RequestRemoveItem {
+    interface AddItem extends Omit<Cart, 'ownerId'> {}
+    interface Encrement {
+      cartItemId: ID
+    }
+    interface Decrement {
+      cartItemId: ID
+    }
+    interface RemoveItem {
       productId: string;
     }
   }

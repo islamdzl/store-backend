@@ -19,8 +19,9 @@ export const removeProduct: (productId: ID)=> Promise<Product> = async(productId
     .setScreenMessage('Product not found', ScreenMessageType.ERROR)
   }
 
-  await new UploadService(null)
-  .remove(product.images)
+  await new UploadService()
+  .removeFilesPaths(product.images)
+  .Execute()
   
   return product.toJSON(); 
 }

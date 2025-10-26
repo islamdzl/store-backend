@@ -2,6 +2,7 @@ import AppResponse, { catchAppError, ScreenMessageType, useAppResponse } from ".
 import * as UserService from './user.service.js'
 import * as UserValidation from './user.validate.js'
 import * as Utils from '../../shared/utils.js'
+import * as Services from '../../shared/services.js'
 import type { HydratedDocument } from "mongoose";
 
 export const register: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
@@ -23,6 +24,8 @@ export const register: (req: Req, res: Res)=> Promise<unknown> = async(req, res)
     const hashedPassword = await Utils.hashPassword(value.password);
     const userInfo: Partial<User> = {
       email: value.email,
+      username: value.username,
+      picture: '/any-user.png',
       password: hashedPassword
     }
     const newUser = await UserService.create(userInfo)
@@ -48,6 +51,13 @@ export const login: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> 
     }
 
     const user = await UserService.getUserByEmail(value.email, true) as HydratedDocument<User>
+
+    const isTruePassword = await Utils.verifyPassword(value.password, user.password)
+    if (! isTruePassword) {
+      throw new AppResponse(404)
+      .setScreenMessage('Account not found', ScreenMessageType.ERROR)
+    }
+
     const response = UserService.loginResponse(user.toJSON())
     useAppResponse(res, 
       new AppResponse(200)
@@ -72,5 +82,28 @@ export const deleteAccount: (req: Req, res: Res)=> Promise<unknown> = async(req,
     )
   } catch(error) {
     catchAppError(error, res, 'User Controller deleteAccount')
+  }
+}
+
+export const get: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
+  const user = req.user!;
+
+  try {
+    const account = await UserService.getUser(user._id, true);
+
+    if (! account) {
+      throw new AppResponse(404)
+      .setData(null) 
+    }
+
+    const response: any = account.toJSON()
+    response.isAdmin = Services.isAdmin(account.email)
+    delete response.password
+    useAppResponse(res, 
+      new AppResponse(200)
+      .setData(response)
+    )
+  } catch(error) {
+    catchAppError(error, res, 'User Controller get')
   }
 }

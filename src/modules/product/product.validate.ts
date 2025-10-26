@@ -8,9 +8,10 @@ export const create = (data: unknown)=> {
     description: Joi.string().max(300).optional(),
     contity: Joi.number().max(30000).optional(),
     isActive: Joi.boolean().default(true),
+    branchId: Joi.string().hex().length(24).required(),
     images: Joi.array().min(1).max(50).required().has(
       Joi.string().uuid()
-    )
+    ),
   }).validate(data) as ValidationResult<Product.Create>
 }
 
@@ -29,6 +30,10 @@ export const update = (data: unknown)=> {
     RImages: Joi.array().max(50).required().has(
       Joi.string().min(20).max(100)
     ),
+    classification: Joi.object<Product.Classification>({
+      category: Joi.string().hex().length(24).required(),
+      branch: Joi.string().hex().length(24).required(),
+    }).optional()
   }).validate(data) as ValidationResult<Product.Update>
 }
 

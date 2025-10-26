@@ -9,21 +9,20 @@ import { jwtVerify, jwtSign } from '../shared/utils.js';
 export const getUser: (force: boolean, adminOnly?: boolean)=> Handler = (force, adminOnly)=> {
   return async(req: Req, res: Res, next)=> {
     try {
-      const token = req.headers['token'];
+      const token = req.headers.token;
       if (! force && ! token) {
         return next()
       }
+
       if (! token) {
         throw new AppResponse(403)
         .reLogIn()
-        .Execute(res)
       }
 
       const payload = await jwtVerify(token as string)
       if (! payload) {
         throw new AppResponse(403)
         .reLogIn()
-        .Execute(res)
       }
 
       const user = await UserModel.findById(payload._id)

@@ -10,14 +10,28 @@ declare global {
     images: string[];
     isActive: boolean;
     contity: number;
+    classification: Product.Classification;
     requests: number;
+    createdAt: Date;
+    updatedAt: Date;
     __v: number;
   }
 
   namespace Product {
 
-    interface Create extends Omit<Product, '_id' | '__v' | 'promo'> {}
-    interface Update extends Omit<Product, '_id' | '__v' | 'images' | 'requests'> {
+    interface Classification {
+      category: ID;
+      branch: ID;
+    }
+
+    interface Create extends Omit<Product, 
+    '_id' | '__v' | 'promo' | 'updatedAt' | 'createdAt'
+    > {
+      branchId?: ID;
+    }
+    interface Update extends Omit<Product, 
+    '_id' | '__v' | 'images' | 'requests' | 'updatedAt' | 'createdAt'
+    > {
       productId: ID;
       RImages: string[];
       AImages: string[];

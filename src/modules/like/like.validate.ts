@@ -1,0 +1,14 @@
+import Joi, { type ValidationResult } from "joi"
+
+
+export const create = (data: unknown)=> {
+  return Joi.object<Like.Create>({
+    productId: Joi.string().hex().length(24)
+  }).validate(data) as ValidationResult<Like.Create>
+}
+
+export const remove = (data: unknown)=> {
+  return Joi.object<Like.Remove>({
+    productId: Joi.string().hex().length(24)
+  }).validate(data) as ValidationResult<Like.Remove>
+}

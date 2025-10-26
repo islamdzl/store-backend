@@ -11,7 +11,6 @@ export class DefaultStore implements Store {
   description = "Description";
   banner?: string | undefined;
   contact: Store.Contact = {};
-  
 }
 
 class StoreService {

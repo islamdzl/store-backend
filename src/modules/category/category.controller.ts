@@ -118,13 +118,17 @@ export const createCategory: (req: Req, res: Res)=> Promise<unknown> = async(req
     }
 
     await withSession<void>(async(session)=> {
-      const payloads = await new UploadService([value.icon])
-      .distinationDir('categorys')
-      .setSession(session)
-      .Execute(user._id)
-
+      const payloads = await new UploadService()
+      .destinationDirectory('/categorys')
+      .saveFilesIds([value.icon])
+      .processType('ICON')
+      .session(session)
+      .user(user._id)
+      .force(1)
+      .Execute()
+      .then((r)=> r.getSavedPaths())
       const newCategory: Category.CreateCategory = {
-        icon: payloads[0]!.path,
+        icon: payloads[0]!,
         name: value.name,
         branchs: [],
       }
@@ -154,15 +158,20 @@ export const createBranch: (req: Req, res: Res)=> Promise<unknown> = async(req, 
 
     await withSession(async(session)=> {
 
-      const payloads= await new UploadService([value.icon])
-      .distinationDir('category-branchs')
-      .setSession(session)
-      .Execute(user._id)
+      const payloads= await new UploadService()
+      .destinationDirectory('/categorys-branchs')
+      .saveFilesIds([value.icon])
+      .processType('ICON')
+      .session(session)
+      .user(user._id)
+      .force(1)
+      .Execute()
+      .then((r)=> r.getSavedPaths())
 
       const newBranch: Category.CreateBranch = {
         posts: 0,
         name: value.name,
-        icon: payloads[0]!.path
+        icon: payloads[0]!
       }
 
       await CategoryService.createBranch(value.categoryId, newBranch, session)
@@ -193,12 +202,16 @@ export const updateCategory: (req: Req, res: Res)=> Promise<unknown> = async(req
 
       if (value.icon) {
         const oldCategory = await CategoryService.getCategory(value.categoryId, true)
-        const payloads = await new UploadService([value.icon])
-        .distinationDir('categorys')
-        .replace([oldCategory!.icon])
-        .setSession(session)
-        .Execute(user._id)
-        value.icon = payloads[0]!.path;
+        const payloads = await new UploadService()
+        .destinationDirectory('/categorys')
+        .saveFilesIds([value.icon])
+        .processType('ICON')
+        .session(session)
+        .user(user._id)
+        .force(1)
+        .Execute()
+        .then((r)=> r.getSavedPaths())
+        value.icon = payloads[0]!;
       }
 
       const updatedCategory: Category.UpdateCategory = {
@@ -234,12 +247,16 @@ export const updateBranch: (req: Req, res: Res)=> Promise<unknown> = async(req, 
 
       if (value.icon) {
         const oldBanch = await CategoryService.getBranch(value.branchId, true)
-        const payloads = await new UploadService([value.icon])
-        .distinationDir('category-branchs')
-        .replace([oldBanch!.icon])
-        .setSession(session)
-        .Execute(user._id)
-        value.icon = payloads[0]!.path;
+        const payloads = await new UploadService()
+        .destinationDirectory('/categorys-branchs')
+        .saveFilesIds([value.icon])
+        .processType('ICON')
+        .session(session)
+        .user(user._id)
+        .force(1)
+        .Execute()
+        .then((r)=> r.getSavedPaths())
+        value.icon = payloads[0]!;
       }
 
       const updatedBranch: Category.UpdateBranch = {

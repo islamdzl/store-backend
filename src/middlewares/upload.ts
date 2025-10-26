@@ -1,13 +1,12 @@
 import multer from 'multer';
 import path from 'path';
 import * as uuid from 'uuid'
-import * as Interfaces from '../shared/interfaces.js'
 
 const diskStorage = multer.diskStorage({
   destination: (req, file, cb)=> {
-    cb(null, path.join(process.cwd(), 'uploads'))
+    cb(null, path.join(process.cwd(), 'uploads/temp'))
   },
-  filename: (req: Interfaces.Req, file, cb)=> {
+  filename: (req: Req, file, cb)=> {
     const fileName = uuid.v4() + `.${file.originalname.split('.').reverse()[0]}`
     req.uploadFileName = fileName;
     cb(null, fileName)

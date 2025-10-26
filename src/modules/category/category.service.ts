@@ -1,4 +1,4 @@
-import { Types, type ClientSession, type HydratedDocument } from 'mongoose';
+import mongoose, { Types, type ClientSession, type HydratedDocument } from 'mongoose';
 import CategoryModel from './category.model.js';
 import UploadService from '../upload/upload.service.js'
 import AppResponse, { ScreenMessageType } from '../../shared/app-response.js';
@@ -37,8 +37,9 @@ export const removeCategorjy: (categoryId: ID)=> Promise<void> = async(categoryI
     category.toJSON().branchs.map((b)=> b.icon).filter((p)=> typeof p === 'string')
     if (category.icon) filesPathsToDelete.push(category.icon);
 
-    await new UploadService(null)
-    .remove(filesPathsToDelete)
+    await new UploadService()
+    .removeFilesPaths(filesPathsToDelete)
+    .Execute()
 }
 
 export const removeBranch: (branchId: ID)=> Promise<void> = async(branchId)=> {
@@ -53,8 +54,9 @@ export const removeBranch: (branchId: ID)=> Promise<void> = async(branchId)=> {
   }
 
   const targetBranch = category.branchs.find((b)=> b._id.toString() === branchId)!
-  await new UploadService(null)
-  .remove([targetBranch.icon])
+  await new UploadService()
+  .removeFilesPaths([targetBranch.icon])
+  .Execute()
 }
 
 export const updateCategory: (categoryId: ID, updates: Category.UpdateCategory)=> Promise<void> = async(categoryId, updates)=> {
@@ -68,8 +70,9 @@ export const updateCategory: (categoryId: ID, updates: Category.UpdateCategory)=
     .setScreenMessage('Category not found', ScreenMessageType.ERROR)
   }
 
-  await new UploadService(null)
-  .remove([category.icon])
+  await new UploadService()
+  .removeFilesPaths([category.icon])
+  .Execute()
 }
 
 export const updateBranch: (branchId: ID, updates: Category.UpdateBranch)=> Promise<void> = async(branchId, updates)=> {
@@ -94,8 +97,9 @@ export const updateBranch: (branchId: ID, updates: Category.UpdateBranch)=> Prom
   }
 
   const targetBranch = category.branchs.find((b)=> b._id.toString() === branchId)!
-  await new UploadService(null)
-  .remove([targetBranch.icon])
+  await new UploadService()
+  .removeFilesPaths([targetBranch.icon])
+  .Execute()
 }
 
 export const getAll: ()=> Promise<Category[]> = async()=> {
@@ -115,8 +119,9 @@ export const getCategory: (categoryId: ID, force?: boolean)=> Promise<HydratedDo
 }
 
 export const getBranch: (branchId: ID, force?: boolean)=> Promise<Category.Branch | null> = async(branchId, force)=> {
+  const branchIdObject = new mongoose.Types.ObjectId(branchId);
   const category = await CategoryModel.findOne({
-    'branchs._id': branchId
+    'branchs._id': branchIdObject
   })
   .lean();
 
@@ -129,4 +134,22 @@ export const getBranch: (branchId: ID, force?: boolean)=> Promise<Category.Branc
   }
 
   return category.branchs.find((b)=> b._id.toString() === branchId)!; // branchId = string
+}
+
+export const createProductValidateCategoryAndBranch: (branchId: ID)=> Promise<Product.Classification> = async(branchId)=> {
+  const branchIdObject = new mongoose.Types.ObjectId(branchId);
+
+  const category = await CategoryModel.findOne({
+    'branchs._id': branchIdObject
+  })
+  .lean();
+  if (! category) {
+    throw new AppResponse(404)
+    .setScreenMessage('Branch not found', ScreenMessageType.ERROR)
+  }
+  
+  return {
+    category: category._id,
+    branch: branchId
+  }
 }

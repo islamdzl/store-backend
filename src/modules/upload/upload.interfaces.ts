@@ -1,27 +1,47 @@
 
 
 declare global {
-  interface Upload extends Omit<Express.Multer.File, 
-  'buffer' | 'fieldname' | 'originalname' | 'stream' | 'encoding'> {
+  
+  interface Upload {
+    _id: ID;
     userId: ID;
-    path: string;
+    destination: string;
     directory: string;
+    filename: string;
+    mimetype: string;
     process: string;
+    createdAt: Date;
+    updatedAt: Date;
   }
 
   namespace Upload {
 
-
     enum ProcessType {
+      ICON = 'ICON',
       LOGO = 'LOGO',
+      BANNER = 'BANNER',
+      PRODUCT_IMAGE = 'PRODUCT_IMAGE',
     }
 
+    interface Declare extends Partial<Upload> {}
     interface Request {
       process: ProcessType;
     }
     interface ExecuteResult {
       id: ID;
       path: string;
+    }
+
+    namespace SaveFile {
+      interface ExecuteResult {
+        removed: Upload[];
+        saved: Upload[];
+        processTime: number;
+  
+        getRemoved: (()=> Upload[])
+        getSaved: (()=> Upload[])
+        getSavedPaths: (()=> string[])
+      }
     }
   }
 }

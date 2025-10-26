@@ -28,8 +28,8 @@ interface IGetBranch {
 
 export const createCategory = (data: unknown)=> {
   return Joi.object<ICreateCategory>({
-    name: Joi.string().min(2).max(20),
-    icon: Joi.string(),
+    name: Joi.string().min(2).max(20).required(),
+    icon: Joi.string().hex().length(24).required(),
   }).validate(data) as ValidationResult<ICreateCategory>
 }
 

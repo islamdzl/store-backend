@@ -3,7 +3,7 @@ import * as CategoryController from './category.controller.js'
 import * as Auth from '../../middlewares/auth.js'
 const Router = express.Router()
 
-Router.get('/ ', CategoryController.getAll)
+Router.get('/', CategoryController.getAll)
 Router.get('/category',     Auth.getUser(true, true), CategoryController.getCategory)
 Router.get('/branch',       Auth.getUser(true, true), CategoryController.getBranch)
 Router.post('/category',    Auth.getUser(true, true), CategoryController.createCategory)
