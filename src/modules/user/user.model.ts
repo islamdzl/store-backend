@@ -7,7 +7,7 @@ const buyingDetailsSchema = new mongoose.Schema<User.BuyingDetails>({
   phone2: { type: SchemaTypes.String},
   note: { type: SchemaTypes.String},
   postalCode: { type: SchemaTypes.String},
-  wilaya: { type: SchemaTypes.Number},
+  state: { type: SchemaTypes.Number},
   deliveryToHome: { type: SchemaTypes.Boolean},
 }, {
   _id: false

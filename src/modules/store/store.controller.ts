@@ -51,6 +51,7 @@ export const update: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
     useAppResponse(res, 
       new AppResponse(200)
       .setData(await StoreService.updateStore(value))
+      .setScreenMessage('Updated successfully', ScreenMessageType.INFO)
     )
   }catch(error) {
     catchAppError(error, res, 'Store Controller get')

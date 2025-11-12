@@ -107,3 +107,27 @@ export const get: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
     catchAppError(error, res, 'User Controller get')
   }
 }
+export const update: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
+  const user = req.user!;
+  const data = req.body!;
+
+  try{
+    const { error, value } = UserValidation.update(data);
+    if (error) {
+      throw new AppResponse(400)
+      .setScreenMessage(error.message, ScreenMessageType.ERROR)
+    }
+    const updatedUser = await UserService.update(user._id, value)
+    
+    const response: any = updatedUser
+    delete response.password;
+    delete response.__v;
+    useAppResponse(res, 
+      new AppResponse(200)
+      .setData(response)
+      .setScreenMessage('Updated Syccessfully', ScreenMessageType.INFO)
+    )
+  } catch(error) {
+    catchAppError(error, res, 'User Controller update')
+  }
+}

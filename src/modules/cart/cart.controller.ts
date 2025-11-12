@@ -29,7 +29,7 @@ export const addProduct: (req: Req, res: Res)=> Promise<unknown> = async(req, re
     }
 
     const cartItem: Cart.AddItem = {
-      productId: value.productId,
+      product: value.productId!,
       count: value.count,
     }
 
@@ -54,7 +54,7 @@ export const removeProduct: (req: Req, res: Res)=> Promise<unknown> = async(req,
       .setScreenMessage(error.message, ScreenMessageType.WARN)
     }
 
-    const cart = await cartServise.removeProduct(user._id, value.productId, /** session */)
+    const cart = await cartServise.removeProduct(user._id, value.productId, value.cartItemId, /** session */)
     useAppResponse(res, 
       new AppResponse(200)
       .setData(cart)
@@ -75,10 +75,10 @@ export const encrement: (req: Req, res: Res)=> Promise<unknown> = async(req, res
       .setScreenMessage(error.message, ScreenMessageType.WARN)
     }
 
-    await cartServise.encrement(user._id, value.cartItemId, /** session */)
+    const cartItem = await cartServise.encrement(user._id, value.cartItemId, /** session */)
     useAppResponse(res, 
       new AppResponse(200)
-      .setData(true)
+      .setData(cartItem)
     )
   } catch(error) {
     catchAppError(error, res, 'User Controller encrelent')
@@ -96,10 +96,10 @@ export const decrement: (req: Req, res: Res)=> Promise<unknown> = async(req, res
       .setScreenMessage(error.message, ScreenMessageType.WARN)
     }
 
-    await cartServise.decrement(user._id, value.cartItemId, /** session */)
+    const cartItem = await cartServise.decrement(user._id, value.cartItemId, /** session */)
     useAppResponse(res, 
       new AppResponse(200)
-      .setData(true)
+      .setData(cartItem)
     )
   } catch(error) {
     catchAppError(error, res, 'User Controller decrement')

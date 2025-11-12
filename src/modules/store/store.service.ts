@@ -9,8 +9,8 @@ const storeFilePath = path.join(dataStorePath, 'store.json');
 export class DefaultStore implements Store {
   name = "store-name";
   description = "Description";
-  banner?: string | undefined;
   contact: Store.Contact = {};
+  media: Store.Media = {};
 }
 
 class StoreService {

@@ -1,14 +1,19 @@
 import multer from 'multer';
 import path from 'path';
 import * as uuid from 'uuid'
+import fs from 'fs';
 
 const diskStorage = multer.diskStorage({
   destination: (req, file, cb)=> {
+    if (! fs.existsSync(path.join(process.cwd(), 'uploads/temp'))) {
+      fs.mkdirSync(path.join(process.cwd(), 'uploads/temp'))
+    }
     cb(null, path.join(process.cwd(), 'uploads/temp'))
   },
   filename: (req: Req, file, cb)=> {
     const fileName = uuid.v4() + `.${file.originalname.split('.').reverse()[0]}`
     req.uploadFileName = fileName;
+    file.filename = fileName;
     cb(null, fileName)
   }
 })
@@ -24,4 +29,4 @@ const images = multer({
 })
 
 
-export default images.single('image')
+export const Images = images;

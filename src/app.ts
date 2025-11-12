@@ -17,7 +17,7 @@ import RSearchRoute from './modules/search/search.route.js'
 import JUpload from './modules/upload/upload.job.js'
 
 app.use(cors({
-  origin: '*'
+  origin: '*' 
 }))
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 

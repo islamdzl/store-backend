@@ -50,7 +50,7 @@ export const remove: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
       .setScreenMessage(error.message, ScreenMessageType.ERROR)
     }
 
-    await LikeService.remove(user._id, value.productId)
+    await LikeService.remove(user._id, value.productId, value.likeItemId, /** session */)
     const likes = await LikeService.getUser(user._id)
     useAppResponse(res,
       new AppResponse(200)

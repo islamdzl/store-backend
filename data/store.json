@@ -1,5 +1,17 @@
 {
-  "name": "store-name",
-  "description": "Description",
-  "contact": {}
+  "name": "DZ-STORE",
+  "description": "اشتري من عندنا ♥️",
+  "contact": {
+    "email": "legbedjislam@gmail.com",
+    "location": "https://maps.app.goo.gl/x52FJDWPSc2ywFnEA",
+    "phone1": "0774374148",
+    "phone2": "0774374148"
+  },
+  "logo": "691478e3dd5d9db170942501",
+  "banner": "6914792cde715e479e548d7c",
+  "media": {
+    "tiktok": "https://tiktok.com/@islamdzl7",
+    "instagram": "https://instagram.com/",
+    "facebook": "https://facebook.com/"
+  }
 }

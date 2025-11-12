@@ -12,7 +12,7 @@ const UD = path.join(process.cwd(), 'uploads')
 class Processes {
   public static async LOGO(buffer: Buffer) {
     return await sharp(buffer)
-      .resize(512, 512, { fit: 'cover', position: 'center'})
+      .resize(1536, 512, { fit: 'cover', position: 'center'})
       .jpeg({ quality: 85 })
       .toBuffer();
   }   
@@ -24,7 +24,7 @@ class Processes {
   }
   public static async BANNER(buffer: Buffer) {
   return await sharp(buffer)
-    .resize(1024, 512, { fit: 'cover', position: 'center'})
+    .resize(1024, 1024, { fit: 'cover', position: 'center'})
     .jpeg({ quality: 85 })
     .toBuffer();
 }

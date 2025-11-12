@@ -1,6 +1,7 @@
 import type { ClientSession, HydratedDocument } from 'mongoose'
 import UserModel from './user.model.js'
 import * as Utils from '../../shared/utils.js'
+import * as Services from '../../shared/services.js'
 import AppResponse, { ScreenMessageType } from '../../shared/app-response.js'
 
 export const create: (info: Partial<User>, session?: ClientSession)=> Promise<HydratedDocument<User>> = async(info, session)=> {
@@ -27,6 +28,7 @@ export const loginResponse: (user: User)=> User.LoginResponse = (user)=> {
     email: user.email,
     picture: user.picture,
     username: user.username,
+    isAdmin: Services.isAdmin(user.email),
     token
   }
   return loginResponse;
@@ -64,3 +66,14 @@ export const getUser: (userId: ID, force?: boolean)=> Promise<HydratedDocument<U
 
   return user;
 }
+
+export const update: (userId: ID, newUser: Partial<User.Update>)=> Promise<User> = async(userId, newUser)=> {
+  const updatedUser = await UserModel.findByIdAndUpdate(userId, {
+    $set: newUser
+  })
+  if (! updatedUser) {
+    throw new AppResponse(404)
+    .setScreenMessage('User not found', ScreenMessageType.ERROR)
+  }
+  return updatedUser.toJSON()
+} 

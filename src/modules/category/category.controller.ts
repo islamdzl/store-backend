@@ -22,7 +22,7 @@ export const getAll: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
 
 export const getCategory: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
   const user = req.user!;
-  const data = req.body!;
+  const data = req.params!;
 
   try{
     const { error, value } = CategoryValidate.getCategory(data);
@@ -43,7 +43,7 @@ export const getCategory: (req: Req, res: Res)=> Promise<unknown> = async(req, r
 
 export const getBranch: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
   const user = req.user!;
-  const data = req.body!;
+  const data = req.params!;
 
   try{
     const { error, value } = CategoryValidate.getBranch(data);
@@ -74,10 +74,9 @@ export const removeCategory: (req: Req, res: Res)=> Promise<unknown> = async(req
     }
 
     await CategoryService.removeCategorjy(value.categoryId)
-    const categorys = await CategoryService.getAll()
     useAppResponse(res, 
       new AppResponse(200)
-      .setData(categorys)
+      .setData(true)
     )
   }catch(error) {
     catchAppError(error, res, 'Category Controller removeCategory')
@@ -96,10 +95,9 @@ export const removeBranch: (req: Req, res: Res)=> Promise<unknown> = async(req, 
     }
 
     await CategoryService.removeBranch(value.branchId)
-    const categorys = await CategoryService.getAll()
     useAppResponse(res, 
       new AppResponse(200)
-      .setData(categorys)
+      .setData(true)
     )
   }catch(error) {
     catchAppError(error, res, 'Category Controller removeBranch')
@@ -117,7 +115,7 @@ export const createCategory: (req: Req, res: Res)=> Promise<unknown> = async(req
       .setScreenMessage(error.message, ScreenMessageType.ERROR)
     }
 
-    await withSession<void>(async(session)=> {
+    const newCategory = await withSession<Category>(async(session)=> {
       const payloads = await new UploadService()
       .destinationDirectory('/categorys')
       .saveFilesIds([value.icon])
@@ -132,12 +130,11 @@ export const createCategory: (req: Req, res: Res)=> Promise<unknown> = async(req
         name: value.name,
         branchs: [],
       }
-      await CategoryService.createCategory(newCategory, session)
+      return await CategoryService.createCategory(newCategory, session)
     })
-    const categorys = await CategoryService.getAll()
     useAppResponse(res, 
       new AppResponse(200)
-      .setData(categorys)
+      .setData(newCategory)
     )
   }catch(error) {
     catchAppError(error, res, 'Category Controller createCategory')
@@ -156,7 +153,7 @@ export const createBranch: (req: Req, res: Res)=> Promise<unknown> = async(req, 
       .setScreenMessage(error.message, ScreenMessageType.ERROR)
     }
 
-    await withSession(async(session)=> {
+    const branch = await withSession(async(session)=> {
 
       const payloads= await new UploadService()
       .destinationDirectory('/categorys-branchs')
@@ -174,13 +171,13 @@ export const createBranch: (req: Req, res: Res)=> Promise<unknown> = async(req, 
         icon: payloads[0]!
       }
 
-      await CategoryService.createBranch(value.categoryId, newBranch, session)
+      return await CategoryService.createBranch(value.categoryId, newBranch, session)
     })
 
     const categorys = await CategoryService.getAll()
     useAppResponse(res, 
       new AppResponse(200)
-      .setData(categorys)
+      .setData(branch)
     )
   }catch(error) {
     catchAppError(error, res, 'Category Controller createBranch')
@@ -198,7 +195,7 @@ export const updateCategory: (req: Req, res: Res)=> Promise<unknown> = async(req
       .setScreenMessage(error.message, ScreenMessageType.ERROR)
     }
 
-    await withSession(async(session)=> {
+    const updatedCategory = await withSession(async(session)=> {
 
       if (value.icon) {
         const oldCategory = await CategoryService.getCategory(value.categoryId, true)
@@ -218,13 +215,12 @@ export const updateCategory: (req: Req, res: Res)=> Promise<unknown> = async(req
         name: value.name,
         icon: value.icon,
       }
-      await CategoryService.updateCategory(value.categoryId, updatedCategory)
+      return await CategoryService.updateCategory(value.categoryId, updatedCategory)
     })
 
-    const categorys = await CategoryService.getAll()
     useAppResponse(res, 
       new AppResponse(200)
-      .setData(categorys)
+      .setData(updatedCategory)
     )
   }catch(error) {
     catchAppError(error, res, 'Category Controller updateCategory')
@@ -243,13 +239,14 @@ export const updateBranch: (req: Req, res: Res)=> Promise<unknown> = async(req, 
       .setScreenMessage(error.message, ScreenMessageType.ERROR)
     }
 
-    await withSession(async(session)=> {
+    const updatedBranch = await withSession(async(session)=> {
 
       if (value.icon) {
         const oldBanch = await CategoryService.getBranch(value.branchId, true)
         const payloads = await new UploadService()
         .destinationDirectory('/categorys-branchs')
         .saveFilesIds([value.icon])
+        .removeFilesPaths([oldBanch!.icon])
         .processType('ICON')
         .session(session)
         .user(user._id)
@@ -263,13 +260,12 @@ export const updateBranch: (req: Req, res: Res)=> Promise<unknown> = async(req, 
         name: value.name,
         icon: value.icon,
       }
-      await CategoryService.updateBranch(value.branchId, updatedBranch)
+      return await CategoryService.updateBranch(value.branchId, updatedBranch)
     })
 
-    const categorys = await CategoryService.getAll()
     useAppResponse(res, 
       new AppResponse(200)
-      .setData(categorys)
+      .setData(updatedBranch)
     )
   }catch(error) {
     catchAppError(error, res, 'Category Controller updateBranch')

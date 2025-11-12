@@ -1,14 +1,20 @@
 import type { ClientSession } from 'mongoose';
 import OrderModel from './order.model.js'
+import * as ProductService from '../product/product.service.js'
+import * as XLSX from 'xlsx'
+import * as Statics from '../../shared/statics.js'
+import fs from 'fs'
 import AppResponse, { ScreenMessageType } from '../../shared/app-response.js';
+import path from 'path';
 
 
 export const getStore: (skip: number, limit: number)=> Promise<Order[]> = async(skip, limit)=> {
-  const orders = await OrderModel.find()
+  const orders = await OrderModel.find({status: 'PENDING'})
   .sort({ createdAt: 1})
   .lean()
   .skip(skip)
   .limit(limit)
+  .populate('product')
   .exec()
 
   return orders;
@@ -17,6 +23,7 @@ export const getStore: (skip: number, limit: number)=> Promise<Order[]> = async(
 export const getUser: (userId: ID)=> Promise<Order[]> = async(userId)=> {
   const orders = await OrderModel.find({userId})
   .sort({ createdAt: 1})
+  .populate('product')
   .lean()
   .exec()
 
@@ -28,9 +35,9 @@ export const create: (order: Order.Create, session?: ClientSession)=> Promise<vo
   await newOrder.save({session})
 }
 
-export const remove: (userId: ID, productId: ID, force?: boolean, session?: ClientSession)=> Promise<void> = async(userId, productId, force, session)=> {
+export const remove: (userId: ID, orderId: ID, force?: boolean, session?: ClientSession)=> Promise<void> = async(userId, orderId, force, session)=> {
   const order = await OrderModel.findOneAndDelete(
-    {userId, product: productId}, 
+    {userId, _id: orderId}, 
     {session}
   )
   if (! order) {
@@ -40,23 +47,60 @@ export const remove: (userId: ID, productId: ID, force?: boolean, session?: Clie
     }
     return;
   }
+
+  await ProductService.changequantityAndReqursts(order.product, order.count, -1)
 }
 
 
-export const acceptMany: (updates: Order.AcceptMany[])=> Promise<number> = async(updates)=> {
+export const acceptMany: (updates: Order.AcceptMany[])=> Promise<{count: number, url: string}> = async(updates)=> {
 
   const retult = await Promise.allSettled(
     updates.map((u)=> OrderModel.findByIdAndUpdate(u.orderId, {
-      status: Order.Status.ACCEPTED,
+      status:'ACCEPTED',
       trackingCode: u.trackingCode,
       message: u.message
     },
-  {
-    new: true
-  }))
+    {
+      new: true
+    }))
+    
   )
+  
 
-  return retult.reduce((count, r)=> (r.status === 'fulfilled' ? count + 1 : count), 0)
+  const jsonData = retult
+  .filter((r)=> r.status === 'fulfilled')
+  .map((r)=> r.value?.toJSON())
+  .map((doc)=> ({
+    City:       doc!.buyingDetails.city,
+    Customer:   doc!.buyingDetails.fullName,
+    Phone1:     doc!.buyingDetails.phone1,
+    Phone2:     doc!.buyingDetails.phone2,
+    Note:       doc!.buyingDetails.note,
+    PostalCode: doc!.buyingDetails.postalCode,
+    State: Statics.States.find((s)=> s.id === doc!.buyingDetails.state)!.name,
+    delivery: doc!.buyingDetails.deliveryToHome ? 'To Home': 'To Offes',
+    count: doc?.count,
+    totalPrice: String(doc?.totalPrice),
+    createdAt: doc?.createdAt.toISOString(),
+    status: doc?.status,
+    productId: doc?.product.toString(),
+    orderId: doc?._id.toString(),
+  }))
+  const workSheet = XLSX.utils.json_to_sheet(jsonData)
+  const book = XLSX.utils.book_new()
+
+  XLSX.utils.book_append_sheet(book, workSheet, 'Orders')
+  const xlsxFileBuffer = XLSX.write(book, {bookType: 'xlsx', type: 'buffer'})
+  const fileName = Date.now().toString() + '.xlsx';
+  if (!  fs.existsSync(path.join(process.cwd(), 'uploads/xlsx-files'))) {
+    await fs.mkdirSync(path.join(process.cwd(), 'uploads/xlsx-files'))
+  }
+  await fs.promises.writeFile(path.join(process.cwd(), 'uploads/xlsx-files', fileName), xlsxFileBuffer)
+
+  return {
+    count: retult.reduce((count, r)=> (r.status === 'fulfilled' ? count + 1 : count), 0),
+    url: '/uploads/xlsx-files/' + fileName
+  }
 }
 
 export const rejectMany: (orderIds: ID[], message?: string)=> Promise<number> = async(orderIds, message)=> {
@@ -65,7 +109,7 @@ export const rejectMany: (orderIds: ID[], message?: string)=> Promise<number> = 
       _id: { $in: orderIds },
     },
     {
-      status: Order.Status.REJECTED,
+      status: 'REJECTED',
       message
     }
   )
@@ -78,7 +122,7 @@ export const setDoneMany: (userId: ID, orderIds: ID[])=> Promise<void> = async(u
     {
       _id: { $in: orderIds}, userId
     }, {
-      status: Order.Status.FULFILLED
+      status: 'FULFILLED'
     }
   )
 }

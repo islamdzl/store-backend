@@ -72,10 +72,10 @@ export const acceptMany: (req: Req, res: Res)=> Promise<unknown> = async(req, re
       .setScreenMessage(error.message, ScreenMessageType.ERROR)
     }
 
-    await OrderService.acceptMany(value);
+    const result = await OrderService.acceptMany(value);
     useAppResponse(res, 
       new AppResponse(200)
-      .setData(true)
+      .setData(result)
     )
   }catch(error) {
     catchAppError(error, res, 'Product Controller acceptMany')

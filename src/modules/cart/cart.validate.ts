@@ -9,8 +9,9 @@ export const addProduct = (data: unknown)=> {
 
 export const removeProduct = (data: unknown)=> {
   return Joi.object<Cart.RemoveItem>({
-    productId: Joi.string().hex().length(24).required(),
-  }).validate(data) as ValidationResult<Cart.RemoveItem>
+    productId: Joi.string().hex().length(24),
+    cartItemId: Joi.string().hex().length(24),
+  }).or('productId', 'cartItemId').validate(data) as ValidationResult<Cart.RemoveItem>
 }
 
 export const encrement = (data: unknown)=> {

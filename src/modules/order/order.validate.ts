@@ -24,10 +24,10 @@ export const getStore = (data: unknown)=> {
 
 export const acceptMany = (data: unknown)=> {
   return Joi.array<Order.AcceptMany[]>()
-  .has(Joi.object<Order.AcceptMany>({
+  .items(Joi.object<Order.AcceptMany>({
     message: Joi.string().max(300).optional(),
     orderId: Joi.string().hex().length(24),
-    trackingCode: Joi.string().max(100).optional()
+    trackingCode: Joi.string().max(100).allow('')
   }))
   .validate(data) as ValidationResult<Order.AcceptMany[]>
 }

@@ -3,8 +3,8 @@ declare global {
   interface Store {
     name: string;
     description: string;
-    banner?: string;
-    contact: Store.Contact
+    contact: Store.Contact;
+    media: Store.Media;
   }
   
   namespace Store {
@@ -13,6 +13,16 @@ declare global {
       phone2?: string;
       email?: string;
       location?: string;
+    }
+    interface Media {
+      tiktok?: string;
+      facebook?: string;
+      instagram?: string;
+    }
+
+    interface Update extends Omit<Partial<Store>, ''> {
+      logo?: string;
+      banner?: string;
     }
   }
 }

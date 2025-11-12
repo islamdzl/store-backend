@@ -23,7 +23,8 @@ declare global {
     }
 
     interface ProductResponse extends Omit<Product, 'isActive' | '__v'> {
-      inCart: boolean;
+      inCart?: boolean;
+      liked?:  boolean;
     }
     
     enum Sort {

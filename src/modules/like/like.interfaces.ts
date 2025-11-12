@@ -4,18 +4,18 @@ declare global {
   interface Like {
     _id: ID;
     userId: ID;
-    productId: ID;
-    preview: string;
+    product: ID;
     createdAt: Date;
     updatedAt: Date;
   }
 
   namespace Like {
     interface Create {
-      productId: ID;
+      productId: string;
     }
     interface Remove {
-      productId: ID;
+      productId: string;
+      likeItemId: string;
     }
   }
 }

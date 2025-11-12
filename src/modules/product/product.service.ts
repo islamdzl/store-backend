@@ -44,7 +44,7 @@ export const updateProduct: (productId: ID, newProduct: Partial<Product>, sessio
   return updatedProduct;
 }
 
-export const changeContityAndReqursts: (productId: ID, contity: number, requests: number, force?: boolean, session?: ClientSession)=> Promise<void> = async(productId, contity, requests, force, session)=> {
+export const changequantityAndReqursts: (productId: ID, quantity: number, requests: number, force?: boolean, session?: ClientSession)=> Promise<void> = async(productId, quantity, requests, force, session)=> {
   const product = await ProductModel.findById(productId)
 
   if (! product) {
@@ -55,7 +55,10 @@ export const changeContityAndReqursts: (productId: ID, contity: number, requests
     return;
   }
 
-  product.contity += contity;
+  if (Number.isInteger(product.quantity)) {
+    product.quantity! += quantity;
+  }
+  
   product.requests += requests;
 
   await product.save({session})
@@ -77,10 +80,10 @@ export const setActivity: (productId: ID, activity: boolean, force?: boolean, se
 }
 
 export const handleBuying: (product: Product, userCount: number, session?: ClientSession)=> Promise<void> = async(product, userCount, session)=> {
-  if (product.contity < userCount) {
+  if (product.quantity !== null && product.quantity < userCount) {
     throw new AppResponse(400)
-    .setScreenMessage(`Remaining ${product.contity} only`, ScreenMessageType.WARN)
+    .setScreenMessage(`Remaining ${product.quantity} only`, ScreenMessageType.WARN)
   }
 
-  await changeContityAndReqursts(product._id, -userCount, 1, true, session)
+  await changequantityAndReqursts(product._id, -userCount, 1, true, session)
 }

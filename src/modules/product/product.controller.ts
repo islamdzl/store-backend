@@ -4,6 +4,8 @@ import * as Services from '../../shared/services.js'
 import * as UserService from '../user/user.service.js'
 import * as OrderService from '../order/order.service.js'
 import * as CategoryService from '../category/category.service.js'
+import * as CartService from '../cart/cart.service.js'
+import * as LikeService from '../like/like.service.js'
 import UploadService from '../upload/upload.service.js'
 import AppResponse, { useAppResponse, catchAppError, ScreenMessageType } from '../../shared/app-response.js';
 import type { HydratedDocument } from 'mongoose';
@@ -15,13 +17,20 @@ import type { HydratedDocument } from 'mongoose';
  * @param res 
  */
 export const get: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
-  const productId = req.params['productId']!;
+  const data = req.params;
+  const user = req.user;
 
   try {
-    const product = await ProductService.getProduct(productId, true);
+    const { error, value } = ProductValidate.productId(data);
+    if (error) {
+      throw new AppResponse(400)
+      .setScreenMessage(error.message, ScreenMessageType.ERROR)
+    }
+    const product = await ProductService.getProduct(value.productId, true);
+    const responesProducts = await LikeService.ifLiked(await CartService.ifCartHas([product?.toJSON()!], user?._id), user?._id)
     useAppResponse(res, 
       new AppResponse(200)
-      .setData(product!.toJSON())
+      .setData(responesProducts[0])
     )
   }catch(error) {
     catchAppError(error, res, 'Product Controller get')
@@ -34,18 +43,20 @@ export const get: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
  * @param res 
  */
 export const remove: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
-  const productId = req.params['productId']!;
+  const data = req.params;
   const user = req.user!;
 
   try {
-    if (! Services.isAdmin(user.email)) {
-      throw new AppResponse(409)
-      .setScreenMessage('Forbidden Action', ScreenMessageType.ERROR)
+    const { error, value } = ProductValidate.productId(data);
+    if (error) {
+      throw new AppResponse(400)
+      .setScreenMessage(error.message, ScreenMessageType.ERROR)
     }
-    await ProductService.removeProduct(productId)
+    await ProductService.removeProduct(value.productId)
     useAppResponse(res,
       new AppResponse(200)
       .setData(true)
+      .setScreenMessage('Deleted Successfully', ScreenMessageType.INFO)
     )
   }catch(error) {
     catchAppError(error, res, 'Product Controller remove')
@@ -75,7 +86,7 @@ export const create: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
 
 
     const product = await Services.withSession<HydratedDocument<Product>>( async(session)=> {
-      const classification = await CategoryService.createProductValidateCategoryAndBranch(value.branchId!)
+      const classification = await CategoryService.createProductValidateCategoryAndBranch(value.classification.category, value.classification.branch)
       const savedFilesPaths = await new UploadService()
       .destinationDirectory('products-images')
       .saveFilesIds(value.images)
@@ -89,12 +100,14 @@ export const create: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
       const newProduct: Product.Create = {
         isActive: true,
         requests: 0,
-        contity: value.contity,
+        quantity: value.quantity,
         name: value.name,
         price: value.price,
         description: value.description,
         images: savedFilesPaths,
-        classification
+        delivery: value.delivery,
+        classification,
+        keyVal: value.keyVal,
       }
       const product = await ProductService.createProduct(newProduct, session)
       return product;
@@ -103,6 +116,7 @@ export const create: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
     useAppResponse(res,
       new AppResponse(200)
       .setData(product.toJSON())
+      .setScreenMessage('Created Successfully', ScreenMessageType.INFO)
     )
   }catch(error) {
     catchAppError(error, res, 'Product Controller create')
@@ -120,11 +134,6 @@ export const update: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
   const user = req.user!;
 
   try {
-    if (! Services.isAdmin(user.email)) {
-      throw new AppResponse(409)
-      .setScreenMessage('Forbidden Action', ScreenMessageType.ERROR)
-    }
-
     const { error, value } = ProductValidate.update(data);
     if (error) {
       throw new AppResponse(400)
@@ -133,25 +142,40 @@ export const update: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
     const product = await ProductService.getProduct(value.productId, true) as HydratedDocument<Product>
     
     const updatedProduct = await Services.withSession<HydratedDocument<Product>>( async(session)=> {
+      const imagesToCreate = value.images.filter((i)=> i.type === 'new').map((i)=> i._id).reverse()
+      const imagesToRemove = product.images.filter((u)=> ! value.images.filter((i)=> i.type === 'old').map((i)=> i.url).includes(u))
+      const oldImages      = value.images.filter((i)=> i.type === 'old').map((i)=> i.url).reverse()
+
       const savedImagesPaths = await new UploadService()
       .destinationDirectory('products-images')
-      .removeFilesPaths(value.RImages)
-      .saveFilesIds(value.AImages)
-      .force(value.AImages.length)
+      .removeFilesPaths(imagesToRemove)
+      .saveFilesIds(imagesToCreate)
+      .force(imagesToCreate.length)
       .processType('PRODUCT_IMAGE')
       .session(session)
       .user(user._id)
       .Execute()
       .then((r)=> r.getSavedPaths())
-  
-      const productImages = product.images.filter((p)=> ! value.RImages.includes(p))
-      .concat(savedImagesPaths)
+
+      const productImages: string[] = value.images
+      .reduce((images, { type }, index)=> {
+        if (type === 'old') images.push(oldImages.pop()!)
+        if (type === 'new') images.push(savedImagesPaths.pop()!)
+        return images;
+      }, [] as string[])
+      
   
       const updates: Partial<Product> = {
         name: value.name,
         price: value.price,
+        promo: value.promo,
+        quantity: value.quantity,
+        classification: value.classification,
+        isActive: value.isActive,
         images: productImages,
         description: value.description,
+        delivery: value.delivery,
+        keyVal: value.keyVal
       }
       
       return await ProductService.updateProduct(value.productId, updates, session)
@@ -159,6 +183,7 @@ export const update: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
     useAppResponse(res,
       new AppResponse(200)
       .setData(updatedProduct.toJSON())
+      .setScreenMessage('Updated Successfully', ScreenMessageType.INFO)
     )
   }catch(error) {
     catchAppError(error, res, 'Product Controller update')
@@ -182,7 +207,7 @@ export const bye: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
     const checkBuyingDetailes = (ob: any)=> {
       if (! ob) {
         throw new AppResponse(400)
-        .runCommand('redirect', '/settings?section=buying-details')
+        .runCommand('redirect', '/buying-details' + (user ? '' : `/${value.productId}`))
         .setScreenMessage('Buying details is required', ScreenMessageType.WARN)
       }
     }
@@ -190,16 +215,18 @@ export const bye: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
       if (! buyingDetails) {
         checkBuyingDetailes(user)
         const User = await UserService.getUser(user!._id, true)
-        checkBuyingDetailes(User!.buyingDetails)
+        buyingDetails = User!.buyingDetails!
+        checkBuyingDetailes(buyingDetails)
       }
 
       const product = await ProductService.getProduct(value.productId, true) as HydratedDocument<Product>;
       const newOrder: Order.Create = {
         count: value.count,
-        status: Order.Status.PENDING,
+        status: 'PENDING' as Order.Status,
         product: product._id,
-        totalPrice: product.price * value.count,
-        userId: user?._id
+        totalPrice: (product.price * value.count) + Number(product.delivery) || 0 - product.promo || 0,
+        userId: user?._id,
+        buyingDetails: buyingDetails!,
       }
       await ProductService.handleBuying(product.toJSON(), value.count, session)
       await OrderService.create(newOrder, session)
@@ -207,6 +234,7 @@ export const bye: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
     useAppResponse(res,
       new AppResponse(200)
       .setData(true)
+      .setScreenMessage('Bye Successfully', ScreenMessageType.INFO)
     )
   }catch(error) {
     catchAppError(error, res, 'Product Controller bye')

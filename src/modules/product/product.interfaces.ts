@@ -9,9 +9,11 @@ declare global {
     description: string;
     images: string[];
     isActive: boolean;
-    contity: number;
     classification: Product.Classification;
     requests: number;
+    quantity: number | null;
+    delivery: number | null;
+    keyVal: Product.KeyVal[];
     createdAt: Date;
     updatedAt: Date;
     __v: number;
@@ -21,20 +23,28 @@ declare global {
 
     interface Classification {
       category: ID;
-      branch: ID;
+      branch: ID | null;
+    }
+    interface KeyVal {
+      key: string;
+      val: string;
+    }
+    interface Image {
+      type: 'old' | 'new';
+      url: string;
+      _id: string;
     }
 
     interface Create extends Omit<Product, 
     '_id' | '__v' | 'promo' | 'updatedAt' | 'createdAt'
     > {
-      branchId?: ID;
+      classification: Product.Classification;
     }
     interface Update extends Omit<Product, 
     '_id' | '__v' | 'images' | 'requests' | 'updatedAt' | 'createdAt'
     > {
       productId: ID;
-      RImages: string[];
-      AImages: string[];
+      images: Product.Image[];
     }
 
     interface Buy {

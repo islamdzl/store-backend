@@ -13,9 +13,9 @@ export const findProducts: (keyWord: string, filter: Search.FindProductsFilter)=
   }
 
   if (filter.sort) {
-    if (filter.sort === Search.Sort.BUY) sort.requests = -1
-    if (filter.sort === Search.Sort.HOT) sort.promo = 1
-    if (filter.sort === Search.Sort.NEW) sort.createdAt = -1
+    if (filter.sort === 'BUY') sort.requests = -1
+    if (filter.sort === 'HOT') sort.promo = -1
+    if (filter.sort === 'NEW') sort.createdAt = -1
   }
 
   if (filter.classification) {
@@ -26,8 +26,9 @@ export const findProducts: (keyWord: string, filter: Search.FindProductsFilter)=
   }
 
   const products = await ProductModel.find(query, {
-    isActive: -1,
-    __v: -1,
+    keyVal: 0,
+    delivery: 0,
+    description: 0,
   })
   .limit(Math.min(filter.limit, 100))
   .skip(filter.skip)

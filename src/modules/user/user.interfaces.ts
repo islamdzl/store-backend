@@ -4,7 +4,7 @@ interface buyingDetails {
   fullName: string;
   phone1: string;
   phone2: string;
-  wilaya: number;
+  state: number;
   city: string;
   postalCode: string;
   note: string;
@@ -36,10 +36,15 @@ declare global {
       password: string;
     }
 
+    interface Update {
+      buyingDetails: User.BuyingDetails;
+    }
+
     interface LoginResponse {
       token: string;
       username: string;
       picture: string;
+      isAdmin: boolean;
       email: string;
     }
   }

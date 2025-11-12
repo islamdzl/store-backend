@@ -4,12 +4,15 @@ import type Joi from "joi";
 declare global {
   interface Cart {
     ownerId: ID;
-    productId: ID;
+    product: ID;
     count: number;
   }
   
   namespace Cart {
-    interface AddItem extends Omit<Cart, 'ownerId'> {}
+    interface AddItem extends Omit<Cart, 'ownerId'> {
+      productId?: ID;
+    }
+
     interface Encrement {
       cartItemId: ID
     }
@@ -18,6 +21,7 @@ declare global {
     }
     interface RemoveItem {
       productId: string;
+      cartItemId: string;
     }
   }
 }

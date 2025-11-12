@@ -35,6 +35,7 @@ export const createCategory = (data: unknown)=> {
 
 export const createBranch = (data: unknown)=> {
   return Joi.object<ICreateBranch>({
+    categoryId: Joi.string().hex().length(24),
     name: Joi.string().min(2).max(20),
     icon: Joi.string(),
   }).validate(data) as ValidationResult<ICreateBranch>
@@ -62,6 +63,7 @@ export const updateCategory = (data: unknown)=> {
 
 export const updateBranch = (data: unknown)=> {
   return Joi.object<IUpdateBranch>({
+    
     name: Joi.string().min(2).max(20),
     icon: Joi.string(),
     branchId: Joi.string().hex().length(24)

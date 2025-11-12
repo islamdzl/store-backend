@@ -5,6 +5,7 @@ const Router = express.Router()
 
 
 Router.get('/',     Auth.getUser(true), UserController.get)
+Router.put('/',     Auth.getUser(true), UserController.update)
 Router.delete('/',  Auth.getUser(true), UserController.deleteAccount)
 Router.post('/login',    UserController.login)
 Router.post('/register', UserController.register)

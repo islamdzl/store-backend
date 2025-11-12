@@ -4,12 +4,13 @@ import UploadService from '../upload/upload.service.js'
 import AppResponse, { ScreenMessageType } from '../../shared/app-response.js';
 
 
-export const createCategory: (category: Category.CreateCategory, session?: ClientSession)=> Promise<void> = async(category, session)=> {
+export const createCategory: (category: Category.CreateCategory, session?: ClientSession)=> Promise<Category> = async(category, session)=> {
   const newCategory = new CategoryModel(category)
   await newCategory.save({session})
+  return newCategory.toJSON()
 }
 
-export const createBranch: (categoryId: ID, branch: Category.CreateBranch, session?: ClientSession)=> Promise<void> = async(categoryId, branch, session)=> {
+export const createBranch: (categoryId: ID, branch: Category.CreateBranch, session?: ClientSession)=> Promise<Category.Branch> = async(categoryId, branch, session)=> {
   const category = await CategoryModel.findById(categoryId);
   if (!category) {
     throw new AppResponse(404).setScreenMessage('Category not found', ScreenMessageType.ERROR);
@@ -24,6 +25,8 @@ export const createBranch: (categoryId: ID, branch: Category.CreateBranch, sessi
   }
   category.branchs.push(newBranch);
   await category.save({ session });
+
+  return newBranch;
 }
 
 export const removeCategorjy: (categoryId: ID)=> Promise<void> = async(categoryId)=> {
@@ -44,7 +47,7 @@ export const removeCategorjy: (categoryId: ID)=> Promise<void> = async(categoryI
 
 export const removeBranch: (branchId: ID)=> Promise<void> = async(branchId)=> {
   const category = await CategoryModel.findOneAndUpdate(
-    { 'branchs._id': branchId },
+    { 'branchs._id': new Types.ObjectId(branchId) },
     { $pull: { branchs: { _id: branchId } }}
   )
 
@@ -59,7 +62,7 @@ export const removeBranch: (branchId: ID)=> Promise<void> = async(branchId)=> {
   .Execute()
 }
 
-export const updateCategory: (categoryId: ID, updates: Category.UpdateCategory)=> Promise<void> = async(categoryId, updates)=> {
+export const updateCategory: (categoryId: ID, updates: Category.UpdateCategory)=> Promise<Category> = async(categoryId, updates)=> {
   const category = await CategoryModel.findByIdAndUpdate(categoryId,
     { $set: updates},
     { new: false }
@@ -73,18 +76,20 @@ export const updateCategory: (categoryId: ID, updates: Category.UpdateCategory)=
   await new UploadService()
   .removeFilesPaths([category.icon])
   .Execute()
+  const updatedCategory = await getCategory(categoryId, true)
+  return updatedCategory!;
 }
 
-export const updateBranch: (branchId: ID, updates: Category.UpdateBranch)=> Promise<void> = async(branchId, updates)=> {
+export const updateBranch: (branchId: ID, updates: Category.UpdateBranch)=> Promise<Category.Branch> = async(branchId, updates)=> {
 
   const setObj = Object.fromEntries(
     Object.entries(updates)
     .filter(([_, v])=> v !== undefined)
-    .map(([key, value])=> [`branch.$.${key}`, value])
+    .map(([key, value])=> [`branchs.$.${key}`, value])
   )
 
   const category = await CategoryModel.findOneAndUpdate(
-    { 'branchs._id': branchId },
+    { 'branchs._id': new Types.ObjectId(branchId) },
     { 
       $set: setObj
     },
@@ -100,6 +105,9 @@ export const updateBranch: (branchId: ID, updates: Category.UpdateBranch)=> Prom
   await new UploadService()
   .removeFilesPaths([targetBranch.icon])
   .Execute()
+
+  const branch = await getBranch(branchId, true)
+  return branch!;
 }
 
 export const getAll: ()=> Promise<Category[]> = async()=> {
@@ -136,20 +144,25 @@ export const getBranch: (branchId: ID, force?: boolean)=> Promise<Category.Branc
   return category.branchs.find((b)=> b._id.toString() === branchId)!; // branchId = string
 }
 
-export const createProductValidateCategoryAndBranch: (branchId: ID)=> Promise<Product.Classification> = async(branchId)=> {
-  const branchIdObject = new mongoose.Types.ObjectId(branchId);
+export const createProductValidateCategoryAndBranch: (categoryId: ID, branchId: ID | null)=> Promise<Product.Classification> = async(categoryId, branchId)=> {
 
-  const category = await CategoryModel.findOne({
-    'branchs._id': branchIdObject
-  })
-  .lean();
+  const category = await CategoryModel.findById(categoryId);
   if (! category) {
     throw new AppResponse(404)
-    .setScreenMessage('Branch not found', ScreenMessageType.ERROR)
+    .setScreenMessage('Category not found', ScreenMessageType.ERROR)
   }
+
+  const branch = category.branchs.find((b)=> b._id.toString() === branchId)
   
+  if (branchId) {
+    if (! branch) {
+      throw new AppResponse(404)
+      .setScreenMessage('Branch not found', ScreenMessageType.ERROR)
+    }
+  }
+
   return {
     category: category._id,
-    branch: branchId
+    branch: branch?._id.toString() || null
   }
 }

@@ -1,9 +1,8 @@
 import mongoose, { SchemaTypes } from "mongoose";
 
 const likeSchema = new mongoose.Schema<Like>({
-  productId: { type: SchemaTypes.ObjectId, required: true },
+  product: { type: SchemaTypes.ObjectId, required: true, ref: 'Product'},
   userId: { type: SchemaTypes.ObjectId, required: true },
-  preview: { type: SchemaTypes.String, required: true },
 }, {
   timestamps: true
 })
