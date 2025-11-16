@@ -9,7 +9,7 @@ dotenv.config({
   path: path.join(process.cwd(), '.env')
 })
 
-const PORT = 2007;
+const PORT = Number(process.env.PORT) || 2007;
 
 const main = async()=> {
   try{
