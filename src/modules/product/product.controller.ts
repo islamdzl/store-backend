@@ -43,7 +43,7 @@ export const get: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
  * @param res 
  */
 export const remove: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
-  const data = req.params;
+  const data = req.body;
   const user = req.user!;
 
   try {

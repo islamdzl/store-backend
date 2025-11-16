@@ -65,6 +65,6 @@ export const buy = (data: unknown)=> {
 
 export const productId = (data: unknown)=> {
   return Joi.object<{productId: string}>({
-    productId: Joi.string().hex().length(24)
+    productId: Joi.string().hex().length(24).required()
   }).validate(data) as ValidationResult<{productId: string}> 
 }

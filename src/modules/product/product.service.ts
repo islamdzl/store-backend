@@ -1,4 +1,4 @@
-import type { ClientSession, HydratedDocument } from "mongoose";
+import { Types, type ClientSession, type HydratedDocument } from "mongoose";
 import ProductModel from "./product.model.js";
 import AppResponse, { ScreenMessageType } from "../../shared/app-response.js";
 import UploadService from '../upload/upload.service.js';
@@ -13,7 +13,7 @@ export const getProduct: (productId: ID, force?: boolean)=> Promise<HydratedDocu
 }
 
 export const removeProduct: (productId: ID)=> Promise<Product> = async(productId)=> {
-  const product = await ProductModel.findByIdAndDelete(productId)
+  const product = await ProductModel.findByIdAndDelete(new Types.ObjectId(productId))
   if (! product) {
     throw new AppResponse(404)
     .setScreenMessage('Product not found', ScreenMessageType.ERROR)
