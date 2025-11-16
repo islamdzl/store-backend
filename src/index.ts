@@ -3,7 +3,7 @@ import path from 'path'
 import logger from './shared/logger.js'
 import connectDb from './config/connect-db.js'
 import SystemError from './shared/system-error.js'
-import express from 'express'
+
 
 dotenv.config({
   path: path.join(process.cwd(), '.env')
