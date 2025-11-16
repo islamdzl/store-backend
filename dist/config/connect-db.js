@@ -5,10 +5,10 @@ const connect = async () => {
     if (!process.env.DATABASE_URL) {
         throw new SystemError('[.ENV] Invalid "DATABASE_URL"');
     }
+    console.log(process.env.DATABASE_URL);
     await mongoose.connect(process.env.DATABASE_URL, {
-        tls: true, // تفعيل TLS
-        tlsAllowInvalidCertificates: false, // لا تسمح بشهادات غير صالحة
-        tlsCAFile: '/etc/ssl/certs/ca-certificates.crt', // مسار الشهادات على Render
+        tls: true,
+        tlsAllowInvalidCertificates: false,
     })
         .then(() => logger.info('[DATABASE]: Connected Successfully'))
         .catch(err => {
@@ -22,6 +22,9 @@ mongoose.connection.on('disconnected', () => {
 });
 mongoose.connection.on('reconnected', () => {
     logger.warn('[DATABASE]: Reconnected');
+});
+mongoose.connection.on('error', (e) => {
+    logger.error(`[DATABASE]: ${e}`);
 });
 export default connect;
 //# sourceMappingURL=connect-db.js.map
