@@ -15,7 +15,7 @@ const main = async()=> {
   try{
     await connectDb()
     const app = (await import('./app.js')).default;
-    app.listen(PORT, '0.0.0.0', ()=> {
+    app.listen(PORT, ()=> {
       logger.info(`Server listen in port: ${PORT}`)
     })
 
