@@ -1,0 +1,98 @@
+import OrderModel from './order.model.js';
+import * as ProductService from '../product/product.service.js';
+import * as XLSX from 'xlsx';
+import * as Statics from '../../shared/statics.js';
+import fs from 'fs';
+import AppResponse, { ScreenMessageType } from '../../shared/app-response.js';
+import path from 'path';
+export const getStore = async (skip, limit) => {
+    const orders = await OrderModel.find({ status: 'PENDING' })
+        .sort({ createdAt: 1 })
+        .lean()
+        .skip(skip)
+        .limit(limit)
+        .populate('product')
+        .exec();
+    return orders;
+};
+export const getUser = async (userId) => {
+    const orders = await OrderModel.find({ userId })
+        .sort({ createdAt: 1 })
+        .populate('product')
+        .lean()
+        .exec();
+    return orders;
+};
+export const create = async (order, session) => {
+    const newOrder = new OrderModel(order);
+    await newOrder.save({ session });
+};
+export const remove = async (userId, orderId, force, session) => {
+    const order = await OrderModel.findOneAndDelete({ userId, _id: orderId }, { session });
+    if (!order) {
+        if (force) {
+            throw new AppResponse(404)
+                .setScreenMessage('Order not found', ScreenMessageType.ERROR);
+        }
+        return;
+    }
+    await ProductService.changequantityAndReqursts(order.product, order.count, -1);
+};
+export const acceptMany = async (updates) => {
+    const retult = await Promise.allSettled(updates.map((u) => OrderModel.findByIdAndUpdate(u.orderId, {
+        status: 'ACCEPTED',
+        trackingCode: u.trackingCode,
+        message: u.message
+    }, {
+        new: true
+    })));
+    const jsonData = retult
+        .filter((r) => r.status === 'fulfilled')
+        .map((r) => r.value?.toJSON())
+        .map((doc) => ({
+        City: doc.buyingDetails.city,
+        Customer: doc.buyingDetails.fullName,
+        Phone1: doc.buyingDetails.phone1,
+        Phone2: doc.buyingDetails.phone2,
+        Note: doc.buyingDetails.note,
+        PostalCode: doc.buyingDetails.postalCode,
+        State: Statics.States.find((s) => s.id === doc.buyingDetails.state).name,
+        delivery: doc.buyingDetails.deliveryToHome ? 'To Home' : 'To Offes',
+        count: doc?.count,
+        totalPrice: String(doc?.totalPrice),
+        createdAt: doc?.createdAt.toISOString(),
+        status: doc?.status,
+        productId: doc?.product.toString(),
+        orderId: doc?._id.toString(),
+    }));
+    const workSheet = XLSX.utils.json_to_sheet(jsonData);
+    const book = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book, workSheet, 'Orders');
+    const xlsxFileBuffer = XLSX.write(book, { bookType: 'xlsx', type: 'buffer' });
+    const fileName = Date.now().toString() + '.xlsx';
+    if (!fs.existsSync(path.join(process.cwd(), 'uploads/xlsx-files'))) {
+        await fs.mkdirSync(path.join(process.cwd(), 'uploads/xlsx-files'));
+    }
+    await fs.promises.writeFile(path.join(process.cwd(), 'uploads/xlsx-files', fileName), xlsxFileBuffer);
+    return {
+        count: retult.reduce((count, r) => (r.status === 'fulfilled' ? count + 1 : count), 0),
+        url: '/uploads/xlsx-files/' + fileName
+    };
+};
+export const rejectMany = async (orderIds, message) => {
+    const updated = await OrderModel.updateMany({
+        _id: { $in: orderIds },
+    }, {
+        status: 'REJECTED',
+        message
+    });
+    return updated.modifiedCount;
+};
+export const setDoneMany = async (userId, orderIds) => {
+    await OrderModel.updateMany({
+        _id: { $in: orderIds }, userId
+    }, {
+        status: 'FULFILLED'
+    });
+};
+//# sourceMappingURL=order.service.js.map
