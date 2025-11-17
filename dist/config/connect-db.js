@@ -5,7 +5,6 @@ const connect = async () => {
     if (!process.env.DATABASE_URL) {
         throw new SystemError('[.ENV] Invalid "DATABASE_URL"');
     }
-    console.log(process.env.DATABASE_URL);
     await mongoose.connect(process.env.DATABASE_URL, {
         tls: true,
         tlsAllowInvalidCertificates: false,
