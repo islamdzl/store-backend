@@ -8,6 +8,13 @@ dotenv.config({
     path: path.join(process.cwd(), '.env')
 });
 const PORT = Number(process.env.PORT) || 2007;
+process.on("uncaughtException", (err) => {
+    logger.error(`"UNCAUGHT EXCEPTION:${err}`);
+});
+process.on("unhandledRejection", (reason) => {
+    logger.error(`UNHANDLED REJECTION: ${reason}`);
+});
+logger.info("STARTING BACKEND...");
 try {
     const app = (await import('./app.js')).default;
     logger.info(`Try running in port: ${PORT}`);
