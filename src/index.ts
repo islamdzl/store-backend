@@ -21,7 +21,7 @@ process.on("unhandledRejection", (reason) => {
 
 logger.info("STARTING BACKEND...");
 
-try{
+try{ 
   
   const app = application.default;
   logger.info(`Try running in port: ${PORT}`)
