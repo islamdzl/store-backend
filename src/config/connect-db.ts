@@ -13,7 +13,7 @@ const connect = async () => {
   .then(() => logger.info('[DATABASE]: Connected Successfully'))
   .catch(err => {
     logger.error('[DATABASE]: Connection Failed', err);
-    process.exit(1);
+    // process.exit(1);
   });
 };
 
