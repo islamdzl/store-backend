@@ -13,9 +13,9 @@ const PORT = Number(process.env.PORT) || 2007;
 
 const main = async()=> {
   try{
-    await connectDb()
     const app = (await import('./app.js')).default;
-    app.listen(PORT, ()=> {
+    app.listen(PORT, async ()=> {
+      await connectDb()
       logger.info(`Server listen in port: ${PORT}`)
     })
 
