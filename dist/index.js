@@ -3,9 +3,7 @@ import path from 'path';
 import logger from './shared/logger.js';
 import connectDb from './config/connect-db.js';
 import SystemError from './shared/system-error.js';
-dotenv.config({
-    path: path.join(process.cwd(), '.env')
-});
+dotenv.config();
 const PORT = Number(process.env.PORT) || 2007;
 const main = async () => {
     try {
@@ -27,5 +25,5 @@ const main = async () => {
         });
     }
 };
-setTimeout(main, 100);
+setTimeout(main, 1000);
 //# sourceMappingURL=index.js.map
