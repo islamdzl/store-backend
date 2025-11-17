@@ -11,30 +11,25 @@ dotenv.config({
 
 const PORT = Number(process.env.PORT) || 2007;
 
-const main = async()=> {
-  try{
-    
-    const app = (await import('./app.js')).default;
-    logger.info(`Try running in port: ${PORT}`)
+try{
+  
+  const app = (await import('./app.js')).default;
+  logger.info(`Try running in port: ${PORT}`)
 
-    app.listen(PORT, async ()=> {
-      logger.info(`Server listen in port: ${PORT}`)
-      await connectDb()
-    })
+  app.listen(PORT, async ()=> {
+    logger.info(`Server listen in port: ${PORT}`)
+    await connectDb()
+  })
 
-  }catch(e: any) {
+}catch(e: any) {
 
-    if (e instanceof SystemError) {
-      logger.error(`System Error: ${e.stack}\n> ${e.message}`)
-      e.exit(0);
-      return;
-    }
-
-    logger.error({
-      message: 'Error in Running app',
-      error: e.message
-    })
+  if (e instanceof SystemError) {
+    logger.error(`System Error: ${e.stack}\n> ${e.message}`)
+    e.exit(0);
   }
-}
 
-setTimeout(main, 1000)
+  logger.error({
+    message: 'Error in Running app',
+    error: e.message
+  })
+}
