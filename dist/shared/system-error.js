@@ -9,7 +9,7 @@ export default class SystemError extends Error {
         logger.debug(debug);
     }
     exit(statu) {
-        process.exit(statu);
+        // process.exit(statu)
     }
 }
 export const catchSystemError = (error, source) => {

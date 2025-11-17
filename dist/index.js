@@ -26,7 +26,7 @@ try {
 catch (e) {
     if (e instanceof SystemError) {
         logger.error(`System Error: ${e.stack}\n> ${e.message}`);
-        // e.exit(0);
+        e.exit(0);
     }
     logger.error({
         message: 'Error in Running app',
