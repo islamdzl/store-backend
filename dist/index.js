@@ -3,7 +3,7 @@ import path from 'path';
 import logger from './shared/logger.js';
 import connectDb from './config/connect-db.js';
 import SystemError from './shared/system-error.js';
-import express from 'express';
+import * as application from './app.js';
 dotenv.config({
     path: path.join(process.cwd(), '.env')
 });
@@ -16,7 +16,7 @@ process.on("unhandledRejection", (reason) => {
 });
 logger.info("STARTING BACKEND...");
 try {
-    const app = (await import('./app.js')).default;
+    const app = application.default;
     logger.info(`Try running in port: ${PORT}`);
     app.listen(PORT, async () => {
         logger.info(`Server listen in port: ${PORT}`);

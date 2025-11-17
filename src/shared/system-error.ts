@@ -14,7 +14,7 @@ export default class SystemError extends Error {
   }
 
   exit(statu: number) {
-    // process.exit(statu)
+    process.exit(statu)
   }
 }
 
