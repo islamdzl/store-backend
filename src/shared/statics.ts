@@ -1,4 +1,15 @@
+import path from "path"
+import logger from "./logger.js"
 
+export let rootApplication = process.env.ROOT_STORAGE_APPLICATION!
+
+if (! process.env.ROOT_STORAGE_APPLICATION) {
+  rootApplication = process.cwd()
+  logger.warn('[.ENV] invalid "ROOT_STORAGE_APPLICATION" I Use:' + process.cwd())
+}
+
+export const UD = path.join(rootApplication, 'uploads')
+export const TD = path.join(rootApplication, 'uploads/temp')
 
 export const States = [
   { id: 1, name: 'Adrar' },

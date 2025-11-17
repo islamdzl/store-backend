@@ -1,17 +1,14 @@
 import multer from 'multer';
-import path from 'path';
 import * as uuid from 'uuid'
 import fs from 'fs';
+import { TD } from '../shared/statics.js'
 
 const diskStorage = multer.diskStorage({
   destination: (req, file, cb)=> {
-    console.log('milter 1')
-    if (! fs.existsSync(path.join(process.cwd(), 'uploads/temp'))) {
-      console.log('milter 2')
-      fs.mkdirSync(path.join(process.cwd(), 'uploads/temp'))
+    if (! fs.existsSync(TD)) {
+      fs.mkdirSync(TD)
     }
-    console.log('milter 3')
-    cb(null, path.join(process.cwd(), 'uploads/temp'))
+    cb(null, TD)
   },
   filename: (req: Req, file, cb)=> {
     const fileName = uuid.v4() + `.${file.originalname.split('.').reverse()[0]}`

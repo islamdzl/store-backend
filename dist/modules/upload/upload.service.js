@@ -5,7 +5,7 @@ import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
 import SystemError from '../../shared/system-error.js';
-const UD = path.join(process.cwd(), 'uploads');
+import { UD } from '../../shared/statics.js';
 class Processes {
     static async LOGO(buffer) {
         return await sharp(buffer)

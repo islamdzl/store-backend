@@ -6,8 +6,8 @@ import fs from 'fs'
 import type { ClientSession, HydratedDocument } from 'mongoose';
 import path from 'path';
 import SystemError from '../../shared/system-error.js'
+import { UD } from '../../shared/statics.js'
 
-const UD = path.join(process.cwd(), 'uploads')
 
 class Processes {
   public static async LOGO(buffer: Buffer) {
