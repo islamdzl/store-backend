@@ -4,9 +4,12 @@ import * as uuid from 'uuid';
 import fs from 'fs';
 const diskStorage = multer.diskStorage({
     destination: (req, file, cb) => {
+        console.log('milter 1');
         if (!fs.existsSync(path.join(process.cwd(), 'uploads/temp'))) {
+            console.log('milter 2');
             fs.mkdirSync(path.join(process.cwd(), 'uploads/temp'));
         }
+        console.log('milter 3');
         cb(null, path.join(process.cwd(), 'uploads/temp'));
     },
     filename: (req, file, cb) => {
