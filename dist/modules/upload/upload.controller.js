@@ -2,6 +2,7 @@ import uploadValidate from './upload.validate.js';
 import * as UploadService from './upload.service.js';
 import AppResponse, { useAppResponse, catchAppError, ScreenMessageType } from '../../shared/app-response.js';
 import path from 'path';
+import { TD } from '../../shared/statics.js';
 export const single = async (req, res) => {
     const data = req.query;
     const user = req.user;
@@ -31,7 +32,6 @@ export const many = async (req, res) => {
     const data = req.query;
     const user = req.user;
     const files = req.files;
-    console.log('controller 1');
     try {
         const { error, value } = uploadValidate(data);
         if (error) {
@@ -40,11 +40,8 @@ export const many = async (req, res) => {
         }
         const processResult = await Promise.allSettled(files.map((file, index) => new Promise(async (resolve, reject) => {
             try {
-                console.log('controller 2');
-                await UploadService.uploadFile(path.join(process.cwd(), 'uploads/temp', file.filename), value.process);
-                console.log('controller 3');
+                await UploadService.uploadFile(path.join(TD, file.filename), value.process);
                 const doc = await UploadService.declareFile(file, user, value.process);
-                console.log('controller 4');
                 resolve({
                     url: `/temp/${file.filename}`,
                     processType: value.process,

@@ -15,11 +15,12 @@ import RCartRoute from './modules/cart/cart.route.js'
 import RSearchRoute from './modules/search/search.route.js'
 
 import JUpload from './modules/upload/upload.job.js'
+import { UD } from './shared/statics.js';
 
 app.use(cors({
   origin: '*' 
 }))
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
+app.use('/uploads', express.static(UD))
 
 app.use(express.json())
 app.use((req, res, next)=> {

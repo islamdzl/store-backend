@@ -1,10 +1,13 @@
 import multer from 'multer';
 import * as uuid from 'uuid'
 import fs from 'fs';
-import { TD } from '../shared/statics.js'
+import { TD, UD } from '../shared/statics.js'
 
 const diskStorage = multer.diskStorage({
   destination: (req, file, cb)=> {
+    if (! fs.existsSync(UD)) {
+      fs.mkdirSync(UD)
+    }
     if (! fs.existsSync(TD)) {
       fs.mkdirSync(TD)
     }
