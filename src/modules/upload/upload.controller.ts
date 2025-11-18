@@ -15,7 +15,7 @@ export const single =  async(req: Req, res: Res)=> {
       throw new AppResponse(400)
       .setScreenMessage(error.message, ScreenMessageType.ERROR)
     }
-    await UploadService.uploadFile(path.join(process.cwd(), 'uploads/temp', req.uploadFileName!), value.process)
+    await UploadService.uploadFile(path.join(TD, req.uploadFileName!), value.process)
     const doc = await UploadService.declareFile(file, user, value.process)
     
     const response = {
@@ -48,6 +48,7 @@ export const many =  async(req: Req, res: Res)=> {
       files.map((file: Express.Multer.File, index)=> new Promise(async(resolve, reject)=> {
         try {
           await UploadService.uploadFile(path.join(TD, file.filename!), value.process)
+
           const doc = await UploadService.declareFile(file, user, value.process)
           resolve({
             url: `/temp/${file.filename}`,

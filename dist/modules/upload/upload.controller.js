@@ -13,7 +13,7 @@ export const single = async (req, res) => {
             throw new AppResponse(400)
                 .setScreenMessage(error.message, ScreenMessageType.ERROR);
         }
-        await UploadService.uploadFile(path.join(process.cwd(), 'uploads/temp', req.uploadFileName), value.process);
+        await UploadService.uploadFile(path.join(TD, req.uploadFileName), value.process);
         const doc = await UploadService.declareFile(file, user, value.process);
         const response = {
             url: `/temp/${req.uploadFileName}`,
