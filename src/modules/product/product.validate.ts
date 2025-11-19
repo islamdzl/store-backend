@@ -31,7 +31,7 @@ export const update = (data: unknown)=> {
     name: Joi.string().min(3).max(25).required(),
     price: Joi.number().min(0).max(999999999).required(),
     description: Joi.string().max(300).min(0),
-    promo: Joi.number().min(0).max(99999999).allow(null),
+    promo: Joi.number().min(0).max(99999999).optional().allow(null),
     isActive: Joi.boolean(),
     quantity: Joi.number().min(1).max(999999).allow(null),
     delivery: Joi.number().min(0).allow(null),
@@ -44,7 +44,7 @@ export const update = (data: unknown)=> {
     ).min(1),
     classification: Joi.object<Product.Classification>({
       category: Joi.string().hex().length(24).required(),
-      branch: Joi.string().hex().length(24).allow(null)
+      branch: Joi.string().hex().length(24).optional().allow(null)
     }).optional(),
     keyVal: Joi.array().items(
       Joi.object<Product.KeyVal>({
