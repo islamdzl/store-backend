@@ -22,26 +22,26 @@ export const create = (data) => {
 export const update = (data) => {
     return Joi.object({
         productId: Joi.string().hex().length(24).required(),
-        name: Joi.string().min(3).max(25).required(),
-        price: Joi.number().min(0).max(999999999).required(),
-        description: Joi.string().max(300).min(0),
-        promo: Joi.number().min(0).max(99999999).allow(null),
-        isActive: Joi.boolean(),
-        quantity: Joi.number().min(1).max(999999).allow(null),
-        delivery: Joi.number().min(0).allow(null),
+        name: Joi.string().min(3).max(25).optional(),
+        price: Joi.number().min(0).max(999999999).optional(),
+        description: Joi.string().max(300).min(0).optional(),
+        promo: Joi.number().min(0).max(99999999).optional().allow(null),
+        isActive: Joi.boolean().optional(),
+        quantity: Joi.number().min(1).max(999999).optional().allow(null),
+        delivery: Joi.number().min(0).optional().allow(null),
         images: Joi.array().items(Joi.object({
             _id: Joi.string().hex().length(24).optional(),
             type: Joi.string().valid('old', 'new').required(),
             url: Joi.string().min(15).max(70).required()
-        })).min(1),
+        })).min(1).max(70).optional(),
         classification: Joi.object({
             category: Joi.string().hex().length(24).required(),
-            branch: Joi.string().hex().length(24).allow(undefined)
+            branch: Joi.string().hex().length(24).optional().allow(null)
         }).optional(),
         keyVal: Joi.array().items(Joi.object({
             key: Joi.string().min(2).max(20).required(),
             val: Joi.string().min(1).max(70).required()
-        }).optional()).min(0).default([]),
+        }).optional()).min(0).default([]).optional(),
     }).validate(data);
 };
 export const buy = (data) => {

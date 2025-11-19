@@ -23,7 +23,7 @@ declare global {
 
     interface Classification {
       category: ID;
-      branch: ID | null;
+      branch?: ID | null;
     }
     interface KeyVal {
       key: string;
@@ -41,8 +41,9 @@ declare global {
       classification: Product.Classification;
     }
     interface Update extends Omit<Product, 
-    '_id' | '__v' | 'images' | 'requests' | 'updatedAt' | 'createdAt'
+    '_id' | '__v' | 'images' | 'requests' | 'updatedAt' | 'createdAt' | 'promo'
     > {
+      promo?: number;
       productId: ID;
       images: Product.Image[];
     }

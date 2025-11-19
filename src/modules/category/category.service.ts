@@ -144,7 +144,7 @@ export const getBranch: (branchId: ID, force?: boolean)=> Promise<Category.Branc
   return category.branchs.find((b)=> b._id.toString() === branchId)!; // branchId = string
 }
 
-export const createProductValidateCategoryAndBranch: (categoryId: ID, branchId: ID | null)=> Promise<Product.Classification> = async(categoryId, branchId)=> {
+export const createProductValidateCategoryAndBranch: (categoryId: ID, branchId?: ID | null)=> Promise<Product.Classification> = async(categoryId, branchId)=> {
 
   const category = await CategoryModel.findById(categoryId);
   if (! category) {

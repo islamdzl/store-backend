@@ -8,5 +8,5 @@ export declare const updateBranch: (branchId: ID, updates: Category.UpdateBranch
 export declare const getAll: () => Promise<Category[]>;
 export declare const getCategory: (categoryId: ID, force?: boolean) => Promise<HydratedDocument<Category> | null>;
 export declare const getBranch: (branchId: ID, force?: boolean) => Promise<Category.Branch | null>;
-export declare const createProductValidateCategoryAndBranch: (categoryId: ID, branchId: ID | null) => Promise<Product.Classification>;
+export declare const createProductValidateCategoryAndBranch: (categoryId: ID, branchId?: ID | null) => Promise<Product.Classification>;
 //# sourceMappingURL=category.service.d.ts.map

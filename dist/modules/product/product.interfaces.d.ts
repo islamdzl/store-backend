@@ -20,7 +20,7 @@ declare global {
     namespace Product {
         interface Classification {
             category: ID;
-            branch: ID | null;
+            branch?: ID | null;
         }
         interface KeyVal {
             key: string;
@@ -34,7 +34,8 @@ declare global {
         interface Create extends Omit<Product, '_id' | '__v' | 'promo' | 'updatedAt' | 'createdAt'> {
             classification: Product.Classification;
         }
-        interface Update extends Omit<Product, '_id' | '__v' | 'images' | 'requests' | 'updatedAt' | 'createdAt'> {
+        interface Update extends Omit<Product, '_id' | '__v' | 'images' | 'requests' | 'updatedAt' | 'createdAt' | 'promo'> {
+            promo?: number;
             productId: ID;
             images: Product.Image[];
         }
