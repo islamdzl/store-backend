@@ -5,6 +5,7 @@ import * as Statics from '../../shared/statics.js';
 import fs from 'fs';
 import AppResponse, { ScreenMessageType } from '../../shared/app-response.js';
 import path from 'path';
+import { UD } from '../../shared/statics.js';
 export const getStore = async (skip, limit) => {
     const orders = await OrderModel.find({ status: 'PENDING' })
         .sort({ createdAt: 1 })
@@ -70,10 +71,10 @@ export const acceptMany = async (updates) => {
     XLSX.utils.book_append_sheet(book, workSheet, 'Orders');
     const xlsxFileBuffer = XLSX.write(book, { bookType: 'xlsx', type: 'buffer' });
     const fileName = Date.now().toString() + '.xlsx';
-    if (!fs.existsSync(path.join(process.cwd(), 'uploads/xlsx-files'))) {
-        await fs.mkdirSync(path.join(process.cwd(), 'uploads/xlsx-files'));
+    if (!fs.existsSync(path.join(UD, 'xlsx-files'))) {
+        await fs.mkdirSync(path.join(UD, 'xlsx-files'));
     }
-    await fs.promises.writeFile(path.join(process.cwd(), 'uploads/xlsx-files', fileName), xlsxFileBuffer);
+    await fs.promises.writeFile(path.join(UD, 'xlsx-files', fileName), xlsxFileBuffer);
     return {
         count: retult.reduce((count, r) => (r.status === 'fulfilled' ? count + 1 : count), 0),
         url: '/uploads/xlsx-files/' + fileName

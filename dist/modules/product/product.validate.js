@@ -36,7 +36,7 @@ export const update = (data) => {
         })).min(1),
         classification: Joi.object({
             category: Joi.string().hex().length(24).required(),
-            branch: Joi.string().hex().length(24).required(),
+            branch: Joi.string().hex().length(24).allow(undefined)
         }).optional(),
         keyVal: Joi.array().items(Joi.object({
             key: Joi.string().min(2).max(20).required(),

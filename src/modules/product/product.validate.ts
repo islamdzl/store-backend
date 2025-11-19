@@ -44,7 +44,7 @@ export const update = (data: unknown)=> {
     ).min(1),
     classification: Joi.object<Product.Classification>({
       category: Joi.string().hex().length(24).required(),
-      branch: Joi.string().hex().length(24).required(),
+      branch: Joi.string().hex().length(24).allow(undefined)
     }).optional(),
     keyVal: Joi.array().items(
       Joi.object<Product.KeyVal>({
