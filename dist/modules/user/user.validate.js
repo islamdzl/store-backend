@@ -2,11 +2,11 @@ import Joi, {} from "joi";
 export const buyingDetailsValidationObject = Joi.object({
     city: Joi.string().min(3).max(25).trim(),
     deliveryToHome: Joi.boolean(),
-    fullName: Joi.string().min(5).max(25).trim(),
+    fullName: Joi.string().min(1).max(25).trim(),
     note: Joi.string().min(0).max(300),
     phone1: Joi.string().min(9).max(11).trim(),
     phone2: Joi.string().min(9).max(11).trim().allow(''),
-    postalCode: Joi.string().min(5).max(15).trim(),
+    postalCode: Joi.string().min(5).max(15).trim().optional(),
     state: Joi.number().min(1).max(58)
 });
 export const register = (data) => {
