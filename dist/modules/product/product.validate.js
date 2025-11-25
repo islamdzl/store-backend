@@ -2,27 +2,34 @@ import Joi, {} from "joi";
 import { buyingDetailsValidationObject } from '../user/user.validate.js';
 export const create = (data) => {
     return Joi.object({
-        name: Joi.string().min(3).max(25).required(),
+        name: Joi.string().trim().min(3).max(25).required(),
         price: Joi.number().min(0).max(999999999).required(),
-        description: Joi.string().min(0).max(300).optional(),
+        description: Joi.string().min(0).max(300).optional().allow(null),
         isActive: Joi.boolean().default(true),
-        quantity: Joi.number().min(1).max(999999).allow(null),
+        quantity: Joi.number().min(1).max(999999).optional().allow(null),
         delivery: Joi.number().min(0).allow(null),
         classification: Joi.object({
             category: Joi.string().hex().length(24).required(),
             branch: Joi.string().hex().length(24).allow(null),
         }),
         images: Joi.array().min(1).max(50).required().has(Joi.string().hex().length(24)),
+        colors: Joi.array().items(Joi.string()).max(50).optional().allow(null),
+        types: Joi.array().items(Joi.object({
+            typeName: Joi.string().max(30),
+            values: Joi.array().items(Joi.string())
+        })).optional().allow(null),
         keyVal: Joi.array().items(Joi.object({
             key: Joi.string().min(2).max(20).required(),
             val: Joi.string().min(1).max(70).required()
         }).optional()).min(0).default([]),
-    }).validate(data);
+    })
+        .strict()
+        .validate(data);
 };
 export const update = (data) => {
     return Joi.object({
         productId: Joi.string().hex().length(24).required(),
-        name: Joi.string().min(3).max(25).optional(),
+        name: Joi.string().trim().min(3).max(25).optional(),
         price: Joi.number().min(0).max(999999999).optional(),
         description: Joi.string().max(300).min(0).optional(),
         promo: Joi.number().min(0).max(99999999).optional().allow(null),
@@ -37,18 +44,30 @@ export const update = (data) => {
         classification: Joi.object({
             category: Joi.string().hex().length(24).required(),
             branch: Joi.string().hex().length(24).optional().allow(null)
-        }).optional(),
+        }).optional().allow(null),
+        colors: Joi.array().items(Joi.string()).max(50).optional().allow(null),
+        types: Joi.array().items(Joi.object({
+            typeName: Joi.string().max(30),
+            values: Joi.array().items(Joi.string())
+        })).optional().allow(null),
         keyVal: Joi.array().items(Joi.object({
             key: Joi.string().min(2).max(20).required(),
             val: Joi.string().min(1).max(70).required()
-        }).optional()).min(0).default([]).optional(),
-    }).validate(data);
+        }).optional()).min(0).optional(),
+    })
+        .strict()
+        .validate(data);
 };
 export const buy = (data) => {
     return Joi.object({
         productId: Joi.string().hex().length(24),
         count: Joi.number().min(0).max(9999),
         buyingDetails: buyingDetailsValidationObject.optional(),
+        color: Joi.string().optional().allow(null),
+        types: Joi.array().items(Joi.object({
+            typeName: Joi.string().max(30),
+            selectedIndex: Joi.number().min(0),
+        }))
     }).validate(data);
 };
 export const productId = (data) => {

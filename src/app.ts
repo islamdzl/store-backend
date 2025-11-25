@@ -18,7 +18,7 @@ import JUpload from './modules/upload/upload.job.js'
 import { UD } from './shared/statics.js';
 
 app.use(cors({
-  origin: '*' 
+  origin: '*'  
 }))
 app.use('/uploads', express.static(UD))
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))

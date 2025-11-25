@@ -1,4 +1,4 @@
-import mongoose, { SchemaTypes } from "mongoose";
+import mongoose, { Mongoose, SchemaTypes } from "mongoose";
 const buyingDetailsSchema = new mongoose.Schema({
     city: { type: SchemaTypes.String },
     fullName: { type: SchemaTypes.String },
@@ -11,6 +11,10 @@ const buyingDetailsSchema = new mongoose.Schema({
 }, {
     _id: false
 });
+const typesSchema = new mongoose.Schema({
+    key: { type: SchemaTypes.String },
+    val: { type: SchemaTypes.String }
+});
 const orderSchema = new mongoose.Schema({
     userId: { type: SchemaTypes.ObjectId },
     totalPrice: { type: SchemaTypes.Number, required: true },
@@ -18,8 +22,9 @@ const orderSchema = new mongoose.Schema({
     status: { type: SchemaTypes.String, required: true },
     count: { type: SchemaTypes.Number, required: true },
     message: { type: SchemaTypes.String },
+    color: { type: SchemaTypes.String },
+    types: [typesSchema],
     buyingDetails: buyingDetailsSchema,
-    trackingCode: { type: SchemaTypes.String },
 }, {
     timestamps: true
 });

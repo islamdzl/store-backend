@@ -53,7 +53,7 @@ export const remove: (userId: ID, orderId: ID, force?: boolean, session?: Client
 }
 
 
-export const acceptMany: (updates: Order.AcceptMany[])=> Promise<{count: number, url: string}> = async(updates)=> {
+export const acceptMany: (updates: Order.Request.AcceptMany[])=> Promise<{count: number, url: string}> = async(updates)=> {
 
   const retult = await Promise.allSettled(
     updates.map((u)=> OrderModel.findByIdAndUpdate(u.orderId, {

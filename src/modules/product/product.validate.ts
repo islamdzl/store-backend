@@ -2,12 +2,12 @@ import Joi, { type ValidationResult } from "joi";
 import { buyingDetailsValidationObject } from '../user/user.validate.js'
 
 export const create = (data: unknown)=> {
-  return Joi.object<Product.Create>({
-    name: Joi.string().min(3).max(25).required(),
+  return Joi.object<Product.Request.Create>({
+    name: Joi.string().trim().min(3).max(25).required(),
     price: Joi.number().min(0).max(999999999).required(),
-    description: Joi.string().min(0).max(300).optional(),
+    description: Joi.string().min(0).max(300).optional().allow(null),
     isActive: Joi.boolean().default(true),
-    quantity: Joi.number().min(1).max(999999).allow(null),
+    quantity: Joi.number().min(1).max(999999).optional().allow(null),
     delivery: Joi.number().min(0).allow(null),
     classification: Joi.object<Product.Classification>({
       category: Joi.string().hex().length(24).required(),
@@ -16,19 +16,28 @@ export const create = (data: unknown)=> {
     images: Joi.array().min(1).max(50).required().has(
       Joi.string().hex().length(24)
     ),
+    colors: Joi.array().items(Joi.string()).max(50).optional().allow(null),
+    types: Joi.array().items(
+      Joi.object<Product.Type>({
+        typeName: Joi.string().max(30),
+        values: Joi.array().items(Joi.string())
+      })
+    ).optional().allow(null),
     keyVal: Joi.array().items(
       Joi.object<Product.KeyVal>({
         key: Joi.string().min(2).max(20).required(),
         val: Joi.string().min(1).max(70).required()
       }).optional()
     ).min(0).default([]),
-  }).validate(data) as ValidationResult<Product.Create>
+  })
+  .strict()
+  .validate(data) as ValidationResult<Product.Request.Create>
 }
 
 export const update = (data: unknown)=> {
-  return Joi.object<Product.Update>({
+  return Joi.object<Product.Request.Update>({
     productId: Joi.string().hex().length(24).required(),
-    name: Joi.string().min(3).max(25).optional(),
+    name: Joi.string().trim().min(3).max(25).optional(),
     price: Joi.number().min(0).max(999999999).optional(),
     description: Joi.string().max(300).min(0).optional(),
     promo: Joi.number().min(0).max(99999999).optional().allow(null),
@@ -36,7 +45,7 @@ export const update = (data: unknown)=> {
     quantity: Joi.number().min(1).max(999999).optional().allow(null),
     delivery: Joi.number().min(0).optional().allow(null),
     images: Joi.array().items(
-      Joi.object<Product.Image>({
+      Joi.object<Product.Request.Update.Image>({
         _id: Joi.string().hex().length(24).optional(),
         type: Joi.string().valid('old', 'new').required(),
         url: Joi.string().min(15).max(70).required()
@@ -45,24 +54,40 @@ export const update = (data: unknown)=> {
     classification: Joi.object<Product.Classification>({
       category: Joi.string().hex().length(24).required(),
       branch: Joi.string().hex().length(24).optional().allow(null)
-    }).optional(),
+    }).optional().allow(null),
+    colors: Joi.array().items(Joi.string()).max(50).optional().allow(null),
+    types: Joi.array().items(
+      Joi.object<Product.Type>({
+        typeName: Joi.string().max(30),
+        values: Joi.array().items(Joi.string())
+      })
+    ).optional().allow(null),
     keyVal: Joi.array().items(
       Joi.object<Product.KeyVal>({
         key: Joi.string().min(2).max(20).required(),
         val: Joi.string().min(1).max(70).required()
       }).optional()
-    ).min(0).default([]).optional(),
+    ).min(0).optional(),
 
-  }).validate(data) as ValidationResult<Product.Update>
+  })
+  .strict()
+  .validate(data) as ValidationResult<Product.Request.Update>
 }
 
 
 export const buy = (data: unknown)=> {
-  return Joi.object<Product.Buy>({
+  return Joi.object<Product.Request.Buy>({
     productId: Joi.string().hex().length(24),
     count: Joi.number().min(0).max(9999),
     buyingDetails: buyingDetailsValidationObject.optional(),
-  }).validate(data) as ValidationResult<Product.Buy>
+    color: Joi.string().optional().allow(null),
+    types: Joi.array().items(
+      Joi.object<Product.Request.Buy.Type>({
+      typeName: Joi.string().max(30),
+      selectedIndex: Joi.number().min(0),
+    })
+    )
+  }).validate(data) as ValidationResult<Product.Request.Buy>
 }
 
 export const productId = (data: unknown)=> {

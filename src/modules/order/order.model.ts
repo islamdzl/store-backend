@@ -1,4 +1,4 @@
-import mongoose, { SchemaTypes } from "mongoose";
+import mongoose, { Mongoose, SchemaTypes } from "mongoose";
 
 const buyingDetailsSchema = new mongoose.Schema<User.BuyingDetails>({
   city: { type: SchemaTypes.String},
@@ -13,6 +13,10 @@ const buyingDetailsSchema = new mongoose.Schema<User.BuyingDetails>({
   _id: false
 })
 
+const typesSchema = new mongoose.Schema<Order.Type>({
+  key: { type: SchemaTypes.String },
+  val: { type: SchemaTypes.String }
+})
 const orderSchema = new mongoose.Schema<Order>({
   userId: { type: SchemaTypes.ObjectId },
   totalPrice: { type: SchemaTypes.Number, required: true },
@@ -20,8 +24,9 @@ const orderSchema = new mongoose.Schema<Order>({
   status: { type: SchemaTypes.String, required: true},
   count: { type: SchemaTypes.Number, required: true },
   message: { type: SchemaTypes.String },
+  color: { type: SchemaTypes.String },
+  types: [typesSchema],
   buyingDetails: buyingDetailsSchema,
-  trackingCode: { type: SchemaTypes.String },
 }, {
   timestamps: true
 })

@@ -8,8 +8,8 @@ interface IOrderId {
 }
 export declare const orderId: (data: unknown) => ValidationResult<IOrderId>;
 export declare const getStore: (data: unknown) => ValidationResult<IGetStore>;
-export declare const acceptMany: (data: unknown) => ValidationResult<Order.AcceptMany[]>;
-export declare const rejectMany: (data: unknown) => ValidationResult<Order.RejectMany>;
+export declare const acceptMany: (data: unknown) => ValidationResult<Order.Request.AcceptMany[]>;
+export declare const rejectMany: (data: unknown) => ValidationResult<Order.Request.RejectMany>;
 export declare const setDoneMany: (data: unknown) => ValidationResult<ID[]>;
 export {};
 //# sourceMappingURL=order.validate.d.ts.map

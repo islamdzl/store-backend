@@ -59,11 +59,28 @@ export const setActivity = async (productId, activity, force, session) => {
         return;
     }
 };
-export const handleBuying = async (product, userCount, session) => {
-    if (product.quantity !== null && product.quantity < userCount) {
+export const handleBuying = async (product, data, session) => {
+    if (product.quantity !== null && product.quantity < data.count) {
         throw new AppResponse(400)
             .setScreenMessage(`Remaining ${product.quantity} only`, ScreenMessageType.WARN);
     }
-    await changequantityAndReqursts(product._id, -userCount, 1, true, session);
+    if (data.color) {
+        const isExistColor = product.colors.find((c) => data.color);
+        if (!isExistColor) {
+            throw new AppResponse(400)
+                .setScreenMessage('Product color not found', ScreenMessageType.ERROR);
+        }
+    }
+    if (data.types && data.types.length) {
+        data.types.forEach((type) => {
+            const isExistType = product.types.find((t) => t.typeName === type.typeName);
+            const isExistIndex = isExistType?.values[type.selectedIndex];
+            if (!isExistType || !isExistIndex) {
+                throw new AppResponse(400)
+                    .setScreenMessage('Product type not found', ScreenMessageType.ERROR);
+            }
+        });
+    }
+    await changequantityAndReqursts(product._id, -data.count, 1, true, session);
 };
 //# sourceMappingURL=product.service.js.map

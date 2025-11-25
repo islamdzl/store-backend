@@ -23,22 +23,22 @@ export const getStore = (data: unknown)=> {
 }
 
 export const acceptMany = (data: unknown)=> {
-  return Joi.array<Order.AcceptMany[]>()
-  .items(Joi.object<Order.AcceptMany>({
+  return Joi.array<Order.Request.AcceptMany[]>()
+  .items(Joi.object<Order.Request.AcceptMany>({
     message: Joi.string().max(300).optional(),
     orderId: Joi.string().hex().length(24),
     trackingCode: Joi.string().max(100).allow('')
   }))
-  .validate(data) as ValidationResult<Order.AcceptMany[]>
+  .validate(data) as ValidationResult<Order.Request.AcceptMany[]>
 }
 
 export const rejectMany = (data: unknown)=> {
-  return Joi.object<Order.RejectMany>({
+  return Joi.object<Order.Request.RejectMany>({
     message: Joi.string().max(200).optional(),
     ordersIds: Joi.array().has(
       Joi.string().hex().length(24)
     )
-  }).validate(data) as ValidationResult<Order.RejectMany>
+  }).validate(data) as ValidationResult<Order.Request.RejectMany>
 }
 
 export const setDoneMany = (data: unknown)=> {

@@ -26,7 +26,7 @@ export const removeProduct: (productId: ID)=> Promise<Product> = async(productId
   return product.toJSON(); 
 }
 
-export const createProduct: (productData: Product.Create, session?: ClientSession)=> Promise<HydratedDocument<Product>> = async(productData, session)=> {
+export const createProduct: (productData: Partial<Product.Create>, session?: ClientSession)=> Promise<HydratedDocument<Product>> = async(productData, session)=> {
   const newProduct = new ProductModel(productData)
   await newProduct.save({session})
   return newProduct;
@@ -79,11 +79,36 @@ export const setActivity: (productId: ID, activity: boolean, force?: boolean, se
   }
 }
 
-export const handleBuying: (product: Product, userCount: number, session?: ClientSession)=> Promise<void> = async(product, userCount, session)=> {
-  if (product.quantity !== null && product.quantity < userCount) {
+
+interface IhandleBuyingUserData {
+  count: number;
+  color?: string;
+  types: Product.Request.Buy.Type[];
+}
+export const handleBuying: (product: Product, data: IhandleBuyingUserData,  session?: ClientSession)=> Promise<void> = async(product, data, session)=> {
+  if (product.quantity !== null && product.quantity < data.count) {
     throw new AppResponse(400)
     .setScreenMessage(`Remaining ${product.quantity} only`, ScreenMessageType.WARN)
   }
 
-  await changequantityAndReqursts(product._id, -userCount, 1, true, session)
+  if (data.color) {
+    const isExistColor = product.colors.find((c)=> data.color)
+    if (! isExistColor) {
+      throw new AppResponse(400)
+      .setScreenMessage('Product color not found', ScreenMessageType.ERROR)
+    }
+  }
+
+  if (data.types && data.types.length) {
+    data.types.forEach((type)=> {
+      const isExistType  = product.types.find((t)=> t.typeName === type.typeName)
+      const isExistIndex = isExistType?.values[type.selectedIndex]
+      if (! isExistType || ! isExistIndex) {
+        throw new AppResponse(400)
+        .setScreenMessage('Product type not found', ScreenMessageType.ERROR)
+      }
+    })
+  }
+
+  await changequantityAndReqursts(product._id, - data.count, 1, true, session)
 }

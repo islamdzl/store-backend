@@ -97,7 +97,7 @@ export const create: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
       .Execute()
       .then((r)=> r.getSavedPaths())
 
-      const newProduct: Product.Create = {
+      const newProduct: Product.Request.Create = {
         isActive: true,
         requests: 0,
         quantity: value.quantity,
@@ -107,6 +107,8 @@ export const create: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
         images: savedFilesPaths,
         delivery: value.delivery,
         classification,
+        colors: value.colors,
+        types: value.types,
         keyVal: value.keyVal,
       }
       const product = await ProductService.createProduct(newProduct, session)
@@ -175,6 +177,8 @@ export const update: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
         images: productImages,
         description: value.description,
         delivery: value.delivery,
+        colors: value.colors,
+        types: value.types,
         keyVal: value.keyVal
       }
       
@@ -224,11 +228,25 @@ export const bye: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
         count: value.count,
         status: 'PENDING' as Order.Status,
         product: product._id,
-        totalPrice: (product.price * value.count) + Number(product.delivery) || 0 - product.promo || 0,
         userId: user?._id,
+        color: value.color,
+        types: [],
+        totalPrice: 0,
         buyingDetails: buyingDetails!,
       }
-      await ProductService.handleBuying(product.toJSON(), value.count, session)
+      newOrder.totalPrice = (product.price * value.count) + Number(product.delivery) || 0 - product.promo || 0;
+      if (value.types) {
+        newOrder.types = value.types.map((t)=> {
+          const type = product.types.find((T)=> t.typeName === T.typeName)!
+          return { key: type!.typeName, val: type!.values[t.selectedIndex]!}
+        })
+      }
+      await ProductService.handleBuying(product.toJSON(), {
+        count: value.count,
+        types: value.types,
+        color: value.color
+      }, session)
+
       await OrderService.create(newOrder, session)
     })
     useAppResponse(res,

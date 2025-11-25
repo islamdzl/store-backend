@@ -3,7 +3,7 @@ export declare const getStore: (skip: number, limit: number) => Promise<Order[]>
 export declare const getUser: (userId: ID) => Promise<Order[]>;
 export declare const create: (order: Order.Create, session?: ClientSession) => Promise<void>;
 export declare const remove: (userId: ID, orderId: ID, force?: boolean, session?: ClientSession) => Promise<void>;
-export declare const acceptMany: (updates: Order.AcceptMany[]) => Promise<{
+export declare const acceptMany: (updates: Order.Request.AcceptMany[]) => Promise<{
     count: number;
     url: string;
 }>;

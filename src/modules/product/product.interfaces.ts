@@ -14,6 +14,8 @@ declare global {
     quantity: number | null;
     delivery: number | null;
     keyVal: Product.KeyVal[];
+    types: Product.Type[];
+    colors: string[];
     createdAt: Date;
     updatedAt: Date;
     __v: number;
@@ -29,29 +31,59 @@ declare global {
       key: string;
       val: string;
     }
-    interface Image {
-      type: 'old' | 'new';
-      url: string;
-      _id: string;
+    interface Type {
+      typeName: string;
+      values: string[];
     }
+    interface Create extends Omit<Product, '_id' | '__v' | 'updatedAt' | 'createdAt'> {}
 
-    interface Create extends Omit<Product, 
-    '_id' | '__v' | 'promo' | 'updatedAt' | 'createdAt'
-    > {
-      classification: Product.Classification;
-    }
-    interface Update extends Omit<Product, 
-    '_id' | '__v' | 'images' | 'requests' | 'updatedAt' | 'createdAt' | 'promo'
-    > {
-      promo?: number;
-      productId: ID;
-      images: Product.Image[];
-    }
 
-    interface Buy {
-      productId: string;
-      count: number;
-      buyingDetails?: User.BuyingDetails;
+    namespace Request {
+
+      namespace Buy {
+        interface Type {
+          typeName: string;
+          selectedIndex: number;
+        }
+      }
+
+      namespace Create {
+        interface Type {
+          typeName: string;
+          values: string[];
+        }
+        interface KeyVal {
+          key: string;
+          val: string;
+        }
+      }
+
+      namespace Update {
+        interface Image {
+          type: 'old' | 'new';
+          url: string;
+          _id: string;
+        }
+      }
+
+      interface Buy {
+        productId: string;
+        count: number;
+        color?: string;
+        buyingDetails?: User.BuyingDetails;
+        types: Product.Request.Buy.Type[]
+      }
+
+  
+      interface Create extends Omit<Product, '_id' | '__v' | 'promo' | 'updatedAt' | 'createdAt'> {
+        classification: Product.Classification;
+      }
+
+      interface Update extends Omit<Product, '_id' | '__v' | 'images' | 'requests' | 'updatedAt' | 'createdAt' | 'promo'> {
+        promo?: number;
+        productId: ID;
+        images: Product.Request.Update.Image[];
+      }
     }
 
   }
