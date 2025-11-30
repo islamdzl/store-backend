@@ -1,5 +1,6 @@
 import type { ClientSession } from 'mongoose';
 import OrderModel from './order.model.js'
+import * as PurchaseService from '../purchase/purchase.service.js'
 import * as ProductService from '../product/product.service.js'
 import * as XLSX from 'xlsx'
 import * as Statics from '../../shared/statics.js'
@@ -67,21 +68,29 @@ export const acceptMany: (updates: Order.Request.AcceptMany[])=> Promise<{count:
     
   )
   
+  const updatedOrders = retult.filter((r)=> r.status === 'fulfilled').map((r)=> r.value!.toJSON())
+  PurchaseService.createMany(updatedOrders.map((o)=> ({
+    deliveryPrice: o.deliveryPrice || 0,
+    productPrice: o.productPrice   || 0,
+    productId: o.product,
+    client: o.userId,
+    count: o.count,
+  })))
 
+  
   const jsonData = retult
   .filter((r)=> r.status === 'fulfilled')
-  .map((r)=> r.value?.toJSON())
+  .map((r)=> r.value!.toJSON())
   .map((doc)=> ({
     City:       doc!.buyingDetails.city,
     Customer:   doc!.buyingDetails.fullName,
     Phone1:     doc!.buyingDetails.phone1,
     Phone2:     doc!.buyingDetails.phone2,
     Note:       doc!.buyingDetails.note,
-    PostalCode: doc!.buyingDetails.postalCode,
     State: Statics.States.find((s)=> s.id === doc!.buyingDetails.state)!.name,
     delivery: doc!.buyingDetails.deliveryToHome ? 'To Home': 'To Offes',
     count: doc?.count,
-    totalPrice: String(doc?.totalPrice),
+    totalPrice: String((doc!.productPrice - doc!.promo || 0) * doc!.count),
     createdAt: doc?.createdAt.toISOString(),
     status: doc?.status,
     productId: doc?.product.toString(),

@@ -11,6 +11,7 @@ import ROrderRoute from './modules/order/order.route.js';
 import RCategoryRoute from './modules/category/category.route.js';
 import RCartRoute from './modules/cart/cart.route.js';
 import RSearchRoute from './modules/search/search.route.js';
+import RAnalyzeRoute from './modules/analyzenig/analyzing.route.js';
 import JUpload from './modules/upload/upload.job.js';
 import { UD } from './shared/statics.js';
 app.use(cors({
@@ -32,6 +33,7 @@ app.use('/product', RProductRoute);
 app.use('/order', ROrderRoute);
 app.use('/category', RCategoryRoute);
 app.use('/search', RSearchRoute);
+app.use('/analyze', RAnalyzeRoute);
 app.use('/shopping-cart', RCartRoute);
 const jobs = [
     JUpload

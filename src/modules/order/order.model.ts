@@ -19,7 +19,9 @@ const typesSchema = new mongoose.Schema<Order.Type>({
 })
 const orderSchema = new mongoose.Schema<Order>({
   userId: { type: SchemaTypes.ObjectId },
-  totalPrice: { type: SchemaTypes.Number, required: true },
+  productPrice: { type: SchemaTypes.Number, required: true },
+  deliveryPrice: { type: SchemaTypes.Number, required: true },
+  promo: { type: SchemaTypes.Number, required: true },
   product: { type: SchemaTypes.ObjectId, required: true, ref: 'Product' },
   status: { type: SchemaTypes.String, required: true},
   count: { type: SchemaTypes.Number, required: true },

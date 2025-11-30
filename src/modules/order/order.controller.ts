@@ -65,7 +65,7 @@ export const acceptMany: (req: Req, res: Res)=> Promise<unknown> = async(req, re
   const data = req.body!;
   const user = req.user!;
 
-  try {
+  try { 
     const { error, value } = OrderValidate.acceptMany(data)
     if (error) {
       throw new AppResponse(400)

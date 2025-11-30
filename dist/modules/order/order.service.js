@@ -1,4 +1,5 @@
 import OrderModel from './order.model.js';
+import * as PurchaseService from '../purchase/purchase.service.js';
 import * as ProductService from '../product/product.service.js';
 import * as XLSX from 'xlsx';
 import * as Statics from '../../shared/statics.js';
@@ -47,16 +48,23 @@ export const acceptMany = async (updates) => {
     }, {
         new: true
     })));
+    const updatedOrders = retult.filter((r) => r.status === 'fulfilled').map((r) => r.value.toJSON());
+    PurchaseService.createMany(updatedOrders.map((o) => ({
+        count: o.count,
+        deliveryPrice: o.deliveryPrice,
+        productId: o.product,
+        productPrice: (o.totalPrice - o.promo) / o.count,
+        client: o.userId
+    })));
     const jsonData = retult
         .filter((r) => r.status === 'fulfilled')
-        .map((r) => r.value?.toJSON())
+        .map((r) => r.value.toJSON())
         .map((doc) => ({
         City: doc.buyingDetails.city,
         Customer: doc.buyingDetails.fullName,
         Phone1: doc.buyingDetails.phone1,
         Phone2: doc.buyingDetails.phone2,
         Note: doc.buyingDetails.note,
-        PostalCode: doc.buyingDetails.postalCode,
         State: Statics.States.find((s) => s.id === doc.buyingDetails.state).name,
         delivery: doc.buyingDetails.deliveryToHome ? 'To Home' : 'To Offes',
         count: doc?.count,

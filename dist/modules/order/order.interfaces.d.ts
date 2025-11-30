@@ -5,9 +5,11 @@ declare global {
         count: number;
         message?: string;
         totalPrice: number;
+        deliveryPrice: number;
         status: Order.Status;
         color?: string;
         types: Order.Type[];
+        promo: number;
         buyingDetails: User.BuyingDetails;
         createdAt: Date;
         updatedAt: Date;

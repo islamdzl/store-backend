@@ -6,7 +6,7 @@ import * as OrderService from '../order/order.service.js'
 import * as CategoryService from '../category/category.service.js'
 import * as CartService from '../cart/cart.service.js'
 import * as LikeService from '../like/like.service.js'
-import UploadService from '../upload/upload.service.js'
+import UploadService, { copyFile, removeFile, reProcess } from '../upload/upload.service.js'
 import AppResponse, { useAppResponse, catchAppError, ScreenMessageType } from '../../shared/app-response.js';
 import type { HydratedDocument } from 'mongoose';
 
@@ -87,15 +87,25 @@ export const create: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
 
     const product = await Services.withSession<HydratedDocument<Product>>( async(session)=> {
       const classification = await CategoryService.createProductValidateCategoryAndBranch(value.classification.category, value.classification.branch)
-      const savedFilesPaths = await new UploadService()
+      const savedImagesPaths = await new UploadService()
       .destinationDirectory('products-images')
       .saveFilesIds(value.images)
       .force(value.images.length)
       .processType('PRODUCT_IMAGE')
+      .ignoreRemoveIndexes([0])
       .session(session)
       .user(user._id)
       .Execute()
       .then((r)=> r.getSavedPaths())
+
+      const newPreviewImageName = `preview-${savedImagesPaths[0]!.split('/').reverse().at(0)}`
+      await copyFile(
+        savedImagesPaths[0]!, 
+        savedImagesPaths[0]!,
+        newPreviewImageName,
+        true
+      )
+      await reProcess(`products-images/${newPreviewImageName}`, 'PRODUCT_IMAGE_PREVIEW' as Upload.ProcessType)
 
       const newProduct: Product.Request.Create = {
         isActive: true,
@@ -104,7 +114,7 @@ export const create: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
         name: value.name,
         price: value.price,
         description: value.description,
-        images: savedFilesPaths,
+        images: savedImagesPaths,
         delivery: value.delivery,
         classification,
         colors: value.colors,
@@ -142,12 +152,11 @@ export const update: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
       .setScreenMessage(error.message, ScreenMessageType.ERROR)
     }
     const product = await ProductService.getProduct(value.productId, true) as HydratedDocument<Product>
-    
     const updatedProduct = await Services.withSession<HydratedDocument<Product>>( async(session)=> {
       const imagesToCreate = value.images.filter((i)=> i.type === 'new').map((i)=> i._id).reverse()
       const imagesToRemove = product.images.filter((u)=> ! value.images.filter((i)=> i.type === 'old').map((i)=> i.url).includes(u))
       const oldImages      = value.images.filter((i)=> i.type === 'old').map((i)=> i.url).reverse()
-
+      
       const savedImagesPaths = await new UploadService()
       .destinationDirectory('products-images')
       .removeFilesPaths(imagesToRemove)
@@ -165,8 +174,21 @@ export const update: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
         if (type === 'new') images.push(savedImagesPaths.pop()!)
         return images;
       }, [] as string[])
-      
-  
+
+      if (productImages[0] !== product.images[0]) {
+        const oldPreviewImageName = `preview-${product.images[0]!.split('/').reverse().at(0)}`
+        const newPreviewImageName = `preview-${productImages[0]!.split('/').reverse().at(0)}`
+        await copyFile(
+          productImages[0]!, 
+          productImages[0]!,
+          newPreviewImageName,
+          true
+        )
+        await reProcess(`products-images/${newPreviewImageName}`, 'PRODUCT_IMAGE_PREVIEW' as Upload.ProcessType)
+
+        await removeFile(oldPreviewImageName, false)
+      }
+
       const updates: Partial<Product> = {
         name: value.name,
         price: value.price,
@@ -230,11 +252,12 @@ export const bye: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
         product: product._id,
         userId: user?._id,
         color: value.color,
-        types: [],
-        totalPrice: 0,
+        types: [], // set after
+        productPrice: product.price, // calc after
+        promo: Number(product.promo || 0),
+        deliveryPrice: Number(product.delivery || 0),
         buyingDetails: buyingDetails!,
       }
-      newOrder.totalPrice = (product.price * value.count) + Number(product.delivery) || 0 - product.promo || 0;
       if (value.types) {
         newOrder.types = value.types.map((t)=> {
           const type = product.types.find((T)=> t.typeName === T.typeName)!

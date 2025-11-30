@@ -200,8 +200,10 @@ export const bye = async (req, res) => {
                 product: product._id,
                 userId: user?._id,
                 color: value.color,
-                types: [],
-                totalPrice: 0,
+                types: [], // set after
+                totalPrice: 0, // calc after
+                promo: Number(product.promo || 0),
+                deliveryPrice: Number(product.delivery || 0),
                 buyingDetails: buyingDetails,
             };
             newOrder.totalPrice = (product.price * value.count) + Number(product.delivery) || 0 - product.promo || 0;
