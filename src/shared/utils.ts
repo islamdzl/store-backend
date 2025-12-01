@@ -1,7 +1,8 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken';
-import type { Types } from 'mongoose';
+import type { HydratedDocument, Types } from 'mongoose';
 import logger from './logger.js';
+import * as Statics from './statics.js'
 import AppResponse, { ScreenMessageType } from './app-response.js';
 
 const hashSalt = 13;
@@ -54,4 +55,22 @@ export const jwtVerify = (token: string)=> {
       resolve(payload as IJWTPayload)
     })
   })
+}
+
+export const buildXLSXFileJSONDataOf_orders: (data: Order[])=> any = (data)=> {
+    return data
+    .map((doc: Order)=> ({
+      'Customer Name':  doc.buyingDetails.fullName,
+      'PhoneA':         doc.buyingDetails.phone1,
+      'PhoneB':         doc.buyingDetails.phone2,
+      'Bladia':         doc.buyingDetails.city,
+      'Wilaya':         doc.buyingDetails.state,
+      'Description':    doc.buyingDetails.note,
+      'Delivery To':    doc.buyingDetails.deliveryToHome ? 'To Home': 'To Offes',
+      'Quantity':       doc.count,
+      'Total Price':    String(((doc!.productPrice - doc.promo || 0) * doc.count) + doc.deliveryPrice),
+      'Date':           doc.createdAt.toISOString(),
+      'Status':         doc.status,
+      'Product ID':     doc.product.toString(),
+    }))
 }

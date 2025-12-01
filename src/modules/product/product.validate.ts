@@ -77,8 +77,8 @@ export const update = (data: unknown)=> {
 
 export const buy = (data: unknown)=> {
   return Joi.object<Product.Request.Buy>({
-    productId: Joi.string().hex().length(24),
-    count: Joi.number().min(0).max(9999),
+    productId: Joi.string().hex().length(24).required(),
+    count: Joi.number().min(0).max(9999).required(),
     buyingDetails: buyingDetailsValidationObject.optional(),
     color: Joi.string().optional().allow(null),
     types: Joi.array().items(

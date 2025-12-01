@@ -10,7 +10,7 @@ declare global {
             DAY = "DAY"
         }
         interface SellData {
-            productId: ID;
+            products: Analyzing.SellData.Products[];
             count: number;
         }
         interface ProfitData {
@@ -18,10 +18,16 @@ declare global {
             productsPrice: number;
             totalPrice: number;
         }
+        namespace SellData {
+            interface Products {
+                productId: ID;
+                count: number;
+            }
+        }
         namespace Request {
             interface SellData {
-                date: Analyzing.Date;
                 productId?: ID;
+                date: Analyzing.Date;
                 skip: number;
             }
             interface ProfitData {
@@ -41,6 +47,8 @@ declare global {
                 date: Analyzing.Date;
                 skip: number;
                 data: Analyzing.ProfitData[];
+            }
+            interface Genral {
             }
         }
     }

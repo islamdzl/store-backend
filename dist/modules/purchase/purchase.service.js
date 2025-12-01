@@ -3,15 +3,16 @@ export const createMany = async (purchases, session) => {
     await Promise.allSettled(purchases.map((p) => new PurchaseModel(p).save({ session })));
 };
 export const getByDate = async (start, end, productId) => {
-    const purchases = await PurchaseModel.find({
-        productId,
+    const filter = {
         createdAt: {
             $gte: start,
-            $lte: end
-        }
-    }, null, {
-        sort: { createdAt: -1 }
-    })
+            $lte: end,
+        },
+    };
+    if (productId)
+        filter.productId = productId;
+    const purchases = await PurchaseModel.find(filter)
+        .sort({ createdAt: -1 })
         .lean()
         .exec();
     return purchases;

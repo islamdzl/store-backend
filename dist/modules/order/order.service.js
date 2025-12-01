@@ -50,11 +50,11 @@ export const acceptMany = async (updates) => {
     })));
     const updatedOrders = retult.filter((r) => r.status === 'fulfilled').map((r) => r.value.toJSON());
     PurchaseService.createMany(updatedOrders.map((o) => ({
-        count: o.count,
-        deliveryPrice: o.deliveryPrice,
+        deliveryPrice: o.deliveryPrice || 0,
+        productPrice: o.productPrice || 0,
         productId: o.product,
-        productPrice: (o.totalPrice - o.promo) / o.count,
-        client: o.userId
+        client: o.userId,
+        count: o.count,
     })));
     const jsonData = retult
         .filter((r) => r.status === 'fulfilled')
@@ -68,7 +68,7 @@ export const acceptMany = async (updates) => {
         State: Statics.States.find((s) => s.id === doc.buyingDetails.state).name,
         delivery: doc.buyingDetails.deliveryToHome ? 'To Home' : 'To Offes',
         count: doc?.count,
-        totalPrice: String(doc?.totalPrice),
+        totalPrice: String((doc.productPrice - doc.promo || 0) * doc.count),
         createdAt: doc?.createdAt.toISOString(),
         status: doc?.status,
         productId: doc?.product.toString(),

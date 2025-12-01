@@ -5,6 +5,8 @@ declare global {
         productPrice: number;
         count: number;
         client?: ID;
+        createdAt: Date;
+        updatedAt: Date;
     }
     namespace Purchase {
         interface Create {

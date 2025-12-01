@@ -1,10 +1,15 @@
 import type { ClientSession } from 'mongoose';
+export declare const reProcess: (UDPath: string, processType: Upload.ProcessType, force?: boolean) => Promise<void>;
+export declare const copyFile: (UDSrc: string, UDDist: string, newName?: string, force?: boolean) => Promise<void>;
+export declare const removeFile: (UDPath: string, force?: boolean) => Promise<void>;
 export declare const declareFile: (file: Express.Multer.File, user: User, process: Upload.ProcessType) => Promise<Upload>;
 export declare const uploadFile: (filePath: string, processType: Upload.ProcessType) => Promise<(file: Express.Multer.File, user: User, process: Upload.ProcessType) => Promise<Upload>>;
 export default class SaveFile {
     private _staticFile;
     private _processType;
     private _requiredSavedResults;
+    private _ignoreOldProcessType;
+    private _listIgnoreRemove;
     private _saveFilesIds;
     private _saveFilesPaths;
     private _removeFilesIds;
@@ -25,6 +30,8 @@ export default class SaveFile {
     staticFile(filename: string): this;
     setStartProcessTime(time: number): this;
     force(savedResults?: number): this;
+    ignoreOldProcessType(): this;
+    ignoreRemoveIndexes(indexes: number[], toIndex?: number): this;
     user(userId: ID): this;
     /**
      * - Exeute process

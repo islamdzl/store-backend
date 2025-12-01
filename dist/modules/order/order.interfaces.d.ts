@@ -4,7 +4,7 @@ declare global {
         userId?: ID;
         count: number;
         message?: string;
-        totalPrice: number;
+        productPrice: number;
         deliveryPrice: number;
         status: Order.Status;
         color?: string;

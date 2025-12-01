@@ -15,7 +15,8 @@ declare global {
             ICON = "ICON",
             LOGO = "LOGO",
             BANNER = "BANNER",
-            PRODUCT_IMAGE = "PRODUCT_IMAGE"
+            PRODUCT_IMAGE = "PRODUCT_IMAGE",
+            PRODUCT_IMAGE_PREVIEW = "PRODUCT_IMAGE_PREVIEW"
         }
         interface Declare extends Partial<Upload> {
         }

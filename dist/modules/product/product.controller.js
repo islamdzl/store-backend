@@ -6,7 +6,7 @@ import * as OrderService from '../order/order.service.js';
 import * as CategoryService from '../category/category.service.js';
 import * as CartService from '../cart/cart.service.js';
 import * as LikeService from '../like/like.service.js';
-import UploadService from '../upload/upload.service.js';
+import UploadService, { copyFile, removeFile, reProcess } from '../upload/upload.service.js';
 import AppResponse, { useAppResponse, catchAppError, ScreenMessageType } from '../../shared/app-response.js';
 /**
  * - params [productId]
@@ -74,15 +74,19 @@ export const create = async (req, res) => {
         }
         const product = await Services.withSession(async (session) => {
             const classification = await CategoryService.createProductValidateCategoryAndBranch(value.classification.category, value.classification.branch);
-            const savedFilesPaths = await new UploadService()
+            const savedImagesPaths = await new UploadService()
                 .destinationDirectory('products-images')
                 .saveFilesIds(value.images)
                 .force(value.images.length)
                 .processType('PRODUCT_IMAGE')
+                .ignoreRemoveIndexes([0])
                 .session(session)
                 .user(user._id)
                 .Execute()
                 .then((r) => r.getSavedPaths());
+            const newPreviewImageName = `preview-${savedImagesPaths[0].split('/').reverse().at(0)}`;
+            await copyFile(savedImagesPaths[0], savedImagesPaths[0], newPreviewImageName, true);
+            await reProcess(`products-images/${newPreviewImageName}`, 'PRODUCT_IMAGE_PREVIEW');
             const newProduct = {
                 isActive: true,
                 requests: 0,
@@ -90,7 +94,7 @@ export const create = async (req, res) => {
                 name: value.name,
                 price: value.price,
                 description: value.description,
-                images: savedFilesPaths,
+                images: savedImagesPaths,
                 delivery: value.delivery,
                 classification,
                 colors: value.colors,
@@ -145,6 +149,13 @@ export const update = async (req, res) => {
                     images.push(savedImagesPaths.pop());
                 return images;
             }, []);
+            if (productImages[0] !== product.images[0]) {
+                const oldPreviewImageName = `preview-${product.images[0].split('/').reverse().at(0)}`;
+                const newPreviewImageName = `preview-${productImages[0].split('/').reverse().at(0)}`;
+                await copyFile(productImages[0], productImages[0], newPreviewImageName, true);
+                await reProcess(`products-images/${newPreviewImageName}`, 'PRODUCT_IMAGE_PREVIEW');
+                await removeFile(oldPreviewImageName, false);
+            }
             const updates = {
                 name: value.name,
                 price: value.price,
@@ -201,12 +212,11 @@ export const bye = async (req, res) => {
                 userId: user?._id,
                 color: value.color,
                 types: [], // set after
-                totalPrice: 0, // calc after
+                productPrice: product.price, // calc after
                 promo: Number(product.promo || 0),
                 deliveryPrice: Number(product.delivery || 0),
                 buyingDetails: buyingDetails,
             };
-            newOrder.totalPrice = (product.price * value.count) + Number(product.delivery) || 0 - product.promo || 0;
             if (value.types) {
                 newOrder.types = value.types.map((t) => {
                     const type = product.types.find((T) => t.typeName === T.typeName);

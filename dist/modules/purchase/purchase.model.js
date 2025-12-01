@@ -5,6 +5,8 @@ const purchaseSchema = new mongoose.Schema({
     productPrice: { type: SchemaTypes.Number, required: true },
     count: { type: SchemaTypes.Number, required: true },
     client: { type: SchemaTypes.ObjectId },
+}, {
+    timestamps: true
 });
 const Purchase = mongoose.model('Purchase', purchaseSchema);
 export default Purchase;

@@ -2,7 +2,7 @@ import AppResponse, { catchAppError, ScreenMessageType, useAppResponse } from ".
 import * as PurchaseValidate from './analyzing.validate.js';
 import * as AnalyzingService from './analyzing.service.js';
 export const getSell = async (req, res) => {
-    const data = req.params;
+    const data = req.body;
     const user = req.user;
     try {
         const { error, value } = PurchaseValidate.sellData(data);
@@ -19,15 +19,27 @@ export const getSell = async (req, res) => {
     }
 };
 export const getProfitData = async (req, res) => {
-    const data = req.params;
+    const data = req.body;
     const user = req.user;
     try {
-        const { error, value } = PurchaseValidate.sellData(data);
+        const { error, value } = PurchaseValidate.profitData(data);
         if (error) {
             throw new AppResponse(400)
                 .setScreenMessage(error.message, ScreenMessageType.ERROR);
         }
-        const response = await AnalyzingService.getSellData(value);
+        const response = await AnalyzingService.getProfitData(value);
+        useAppResponse(res, new AppResponse(200)
+            .setData(response));
+    }
+    catch (error) {
+        catchAppError(error, res, 'Purchase Controller getProfitData');
+    }
+};
+export const genral = async (req, res) => {
+    const data = req.body;
+    const user = req.user;
+    try {
+        const response = await AnalyzingService.genral();
         useAppResponse(res, new AppResponse(200)
             .setData(response));
     }

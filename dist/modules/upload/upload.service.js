@@ -27,11 +27,55 @@ class Processes {
     }
     static async PRODUCT_IMAGE(buffer) {
         return await sharp(buffer)
-            .resize(800, 800, { fit: 'cover', position: 'center' })
+            // .resize(800, 800, { fit: 'cover', position: 'center'})
             .jpeg({ quality: 85 })
             .toBuffer();
     }
+    static async PRODUCT_IMAGE_PREVIEW(buffer) {
+        return await sharp(buffer)
+            .resize(800, 800, { fit: 'cover', position: 'center' })
+            .jpeg({ quality: 20 })
+            .toBuffer();
+    }
 }
+export const reProcess = async (UDPath, processType, force = true) => {
+    const fullPathFile = path.join(UD, UDPath);
+    const isExist = fs.existsSync(fullPathFile);
+    if (!isExist && force) {
+        throw new SystemError('reProcess: File not found');
+    }
+    if (isExist) {
+        const FileBuffer = await fs.promises.readFile(fullPathFile);
+        const updatedBuffer = await Processes[processType](FileBuffer);
+        await fs.promises.rm(fullPathFile);
+        await fs.promises.writeFile(fullPathFile, updatedBuffer);
+    }
+};
+export const copyFile = async (UDSrc, UDDist, newName, force = true) => {
+    const fullPathFile = path.join(UD, UDSrc);
+    const isExist = await fs.existsSync(fullPathFile);
+    if (!isExist && force) {
+        throw new SystemError('copyFile: File not found');
+    }
+    if (newName) {
+        const splits = UDDist.split('/').reverse();
+        splits[0] = newName.includes('.') ? newName : newName + path.extname(splits[0]);
+        UDDist = splits.reverse().join('/');
+    }
+    if (isExist) {
+        await fs.promises.cp(fullPathFile, path.join(UD, UDDist));
+    }
+};
+export const removeFile = async (UDPath, force = true) => {
+    const fullPathFile = path.join(UD, UDPath);
+    const isExist = await fs.existsSync(fullPathFile);
+    if (!isExist && force) {
+        throw new SystemError('removeFile: File not found');
+    }
+    if (isExist) {
+        await fs.promises.rm(fullPathFile);
+    }
+};
 export const declareFile = async (file, user, process) => {
     const newFileSchema = {
         destination: file.destination,
@@ -62,6 +106,8 @@ export const uploadFile = async (filePath, processType) => {
     return declareFile;
 };
 export default class SaveFile {
+    _ignoreOldProcessType = false;
+    _listIgnoreRemove = [];
     _saveFilesIds = [];
     _saveFilesPaths = [];
     _removeFilesIds = [];
@@ -115,6 +161,18 @@ export default class SaveFile {
             this._requiredSavedResults = savedResults;
         return this;
     }
+    ignoreOldProcessType() {
+        this._ignoreOldProcessType = true;
+        return this;
+    }
+    ignoreRemoveIndexes(indexes, toIndex) {
+        this._listIgnoreRemove = indexes;
+        if (toIndex) {
+            for (let a = 0; a < toIndex; a++)
+                this._listIgnoreRemove.push(a);
+        }
+        return this;
+    }
     user(userId) {
         this._userId = userId;
         return this;
@@ -150,7 +208,7 @@ export default class SaveFile {
                 ]
             });
         }
-        if (this._processType) {
+        if (!this._ignoreOldProcessType && this._processType) {
             filesToSave.forEach((p) => {
                 if (p.process !== this._processType) {
                     throw new AppResponse(400)
@@ -161,6 +219,11 @@ export default class SaveFile {
         if (this._staticFile) {
             if (filesToSave.length !== 1) {
                 throw new SystemError('SaveFile StaticFile mode expected one file!');
+            }
+            if (this._processType && this._ignoreOldProcessType) {
+                const file = filesToSave[0];
+                const processedBufferFile = await Processes[this._processType](await fs.promises.readFile(path.join(UD, file.directory, file.filename)));
+                fs.promises.writeFile(path.join(UD, this._destinationDirectory, this._staticFile), processedBufferFile);
             }
         }
         if (this._requiredSavedResults) {
@@ -179,13 +242,15 @@ export default class SaveFile {
         }
         if (filesToSave) {
             await fs.promises.mkdir(path.join(UD, this._destinationDirectory), { recursive: true });
-            await Promise.allSettled(filesToSave.map((p) => new Promise(async (resolve, reject) => {
+            await Promise.allSettled(filesToSave.map((p, index) => new Promise(async (resolve, reject) => {
                 try {
                     const fileName = this._staticFile || p.filename;
                     if (!fs.existsSync(path.join(UD, p.directory, p.filename)))
                         return reject(new SystemError(`File not exists: ${path.join(UD, p.directory, p.filename)}`));
                     await fs.promises.cp(path.join(UD, p.directory, p.filename), path.join(UD, this._destinationDirectory, fileName));
-                    await fs.promises.rm(path.join(UD, p.directory, p.filename));
+                    if (!this._listIgnoreRemove.includes(index)) {
+                        await fs.promises.rm(path.join(UD, p.directory, p.filename));
+                    }
                     p.directory = this._destinationDirectory;
                     p.destination = path.join(UD, this._destinationDirectory);
                     await p.save({ session: this._session });
