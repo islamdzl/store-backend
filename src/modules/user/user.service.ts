@@ -25,12 +25,12 @@ export const loginResponse: (user: User, res: Res)=> User.LoginResponse = (user,
 
   const token = Utils.jwtSign(jwtPayload)
 
-  res.cookie('authorization', token, {
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 * 60,
-    secure: false, // process.env.NODE_ENV === 'production',
-    sameSite: 'lax'
-  })
+  // res.cookie('authorization', token, {
+  //   httpOnly: true,
+  //   maxAge: 1000 * 60 * 60 * 24 * 60,
+  //   secure: false, // process.env.NODE_ENV === 'production',
+  //   sameSite: 'lax'
+  // })
 
   const loginResponse: User.LoginResponse = {
     email: user.email,
