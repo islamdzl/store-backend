@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import logger from './logger.js';
+import * as Statics from './statics.js';
 import AppResponse, { ScreenMessageType } from './app-response.js';
 const hashSalt = 13;
 if (!process.env.JWT_SECRET) {
@@ -34,5 +35,22 @@ export const jwtVerify = (token) => {
             resolve(payload);
         });
     });
+};
+export const buildXLSXFileJSONDataOf_orders = (data) => {
+    return data
+        .map((doc) => ({
+        'Customer Name': doc.buyingDetails.fullName,
+        'PhoneA': doc.buyingDetails.phone1,
+        'PhoneB': doc.buyingDetails.phone2,
+        'Bladia': doc.buyingDetails.city,
+        'Wilaya': doc.buyingDetails.state,
+        'Description': doc.buyingDetails.note,
+        'Delivery To': doc.buyingDetails.deliveryToHome ? 'To Home' : 'To Offes',
+        'Quantity': doc.count,
+        'Total Price': String(((doc.productPrice - doc.promo || 0) * doc.count) + doc.deliveryPrice),
+        'Date': doc.createdAt.toISOString(),
+        'Status': doc.status,
+        'Product ID': doc.product.toString(),
+    }));
 };
 //# sourceMappingURL=utils.js.map

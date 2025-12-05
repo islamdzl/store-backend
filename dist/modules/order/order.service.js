@@ -2,7 +2,7 @@ import OrderModel from './order.model.js';
 import * as PurchaseService from '../purchase/purchase.service.js';
 import * as ProductService from '../product/product.service.js';
 import * as XLSX from 'xlsx';
-import * as Statics from '../../shared/statics.js';
+import * as Utils from '../../shared/utils.js';
 import fs from 'fs';
 import AppResponse, { ScreenMessageType } from '../../shared/app-response.js';
 import path from 'path';
@@ -41,14 +41,14 @@ export const remove = async (userId, orderId, force, session) => {
     await ProductService.changequantityAndReqursts(order.product, order.count, -1);
 };
 export const acceptMany = async (updates) => {
-    const retult = await Promise.allSettled(updates.map((u) => OrderModel.findByIdAndUpdate(u.orderId, {
+    const result = await Promise.allSettled(updates.map((u) => OrderModel.findByIdAndUpdate(u.orderId, {
         status: 'ACCEPTED',
         trackingCode: u.trackingCode,
         message: u.message
     }, {
         new: true
     })));
-    const updatedOrders = retult.filter((r) => r.status === 'fulfilled').map((r) => r.value.toJSON());
+    const updatedOrders = result.filter((r) => r.status === 'fulfilled').map((r) => r.value.toJSON());
     PurchaseService.createMany(updatedOrders.map((o) => ({
         deliveryPrice: o.deliveryPrice || 0,
         productPrice: o.productPrice || 0,
@@ -56,24 +56,11 @@ export const acceptMany = async (updates) => {
         client: o.userId,
         count: o.count,
     })));
-    const jsonData = retult
-        .filter((r) => r.status === 'fulfilled')
-        .map((r) => r.value.toJSON())
-        .map((doc) => ({
-        City: doc.buyingDetails.city,
-        Customer: doc.buyingDetails.fullName,
-        Phone1: doc.buyingDetails.phone1,
-        Phone2: doc.buyingDetails.phone2,
-        Note: doc.buyingDetails.note,
-        State: Statics.States.find((s) => s.id === doc.buyingDetails.state).name,
-        delivery: doc.buyingDetails.deliveryToHome ? 'To Home' : 'To Offes',
-        count: doc?.count,
-        totalPrice: String((doc.productPrice - doc.promo || 0) * doc.count),
-        createdAt: doc?.createdAt.toISOString(),
-        status: doc?.status,
-        productId: doc?.product.toString(),
-        orderId: doc?._id.toString(),
-    }));
+    const orders = result
+        .filter((p) => p.status === 'fulfilled')
+        .filter((p) => p.value)
+        .map((p) => p.value.toJSON());
+    const jsonData = Utils.buildXLSXFileJSONDataOf_orders(orders);
     const workSheet = XLSX.utils.json_to_sheet(jsonData);
     const book = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(book, workSheet, 'Orders');
@@ -84,7 +71,7 @@ export const acceptMany = async (updates) => {
     }
     await fs.promises.writeFile(path.join(UD, 'xlsx-files', fileName), xlsxFileBuffer);
     return {
-        count: retult.reduce((count, r) => (r.status === 'fulfilled' ? count + 1 : count), 0),
+        count: result.reduce((count, r) => (r.status === 'fulfilled' ? count + 1 : count), 0),
         url: '/uploads/xlsx-files/' + fileName
     };
 };

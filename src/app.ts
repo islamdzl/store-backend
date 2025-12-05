@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
-import cors from 'cors'
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
@@ -18,13 +19,16 @@ import RAnalyzeRoute from './modules/analyzenig/analyzing.route.js'
 import JUpload from './modules/upload/upload.job.js'
 import { UD } from './shared/statics.js';
 
+app.use(cookieParser())
+app.use(express.json())
 app.use(cors({
-  origin: '*'  
+  origin: process.env.URL ?? '*',
+  credentials: true
 }))
+
 app.use('/uploads', express.static(UD))
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 
-app.use(express.json())
 app.use((req, res, next)=> {
   if (! req.body) req.body = {};
   next()
@@ -38,7 +42,7 @@ app.use('/product', RProductRoute)
 app.use('/order', ROrderRoute)
 app.use('/category', RCategoryRoute)
 app.use('/search', RSearchRoute)
-app.use('/analyze', RAnalyzeRoute)
+app.use('/analyzing', RAnalyzeRoute)
 app.use('/shopping-cart', RCartRoute)
 
 

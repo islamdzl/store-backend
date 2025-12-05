@@ -9,17 +9,18 @@ import { jwtVerify, jwtSign } from '../shared/utils.js';
 export const getUser: (force: boolean, adminOnly?: boolean)=> Handler = (force, adminOnly)=> {
   return async(req: Req, res: Res, next)=> {
     try {
-      const token = req.headers.token;
-      if (! force && ! token) {
+      const token = req.cookies.authorization ?? req.headers.authorization;
+
+      if (! force && !token) {
         return next()
       }
 
-      if (! token) {
+      if (! token || typeof token !== 'string') {
         throw new AppResponse(403)
         .reLogIn()
       }
 
-      const payload = await jwtVerify(token as string)
+      const payload = await jwtVerify(token.split(' ')[1] as string)
       if (! payload) {
         throw new AppResponse(403)
         .reLogIn()

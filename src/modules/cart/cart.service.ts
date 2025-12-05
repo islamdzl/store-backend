@@ -45,7 +45,7 @@ export const ifCartHas: (product: Product[] | Search.ProductResponse[], userId?:
     .exec()
     const cartProductsIds: ID[] = cart.map((p)=> p.product.toString())
     return products
-    .filter((p)=> !!p)
+    .filter((p: Product | Search.ProductResponse)=> p)
     .map((p)=> cartProductsIds.includes(p._id?.toJSON()) ? ({...p, inCart: true}) : ({...p, inCart: false}))
   }
 

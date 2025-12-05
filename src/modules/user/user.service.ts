@@ -17,13 +17,21 @@ export const ifExist: (condition: Partial<User>)=> Promise<boolean> = async(cond
 }
 
 
-export const loginResponse: (user: User)=> User.LoginResponse = (user)=> {
+export const loginResponse: (user: User, res: Res)=> User.LoginResponse = (user, res)=> {
 
   const jwtPayload: IJWTPayload = {
     _id: user._id
   }
 
   const token = Utils.jwtSign(jwtPayload)
+
+  res.cookie('authorization', token, {
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 * 60,
+    secure: false, // process.env.NODE_ENV === 'production',
+    sameSite: 'lax'
+  })
+
   const loginResponse: User.LoginResponse = {
     email: user.email,
     picture: user.picture,

@@ -6,3 +6,4 @@
   CLEAN_TEMP_DIRECTORY_TIME=<Time ms>
   ADMINS=[<email>]
   ROOT_STORAGE_APPLICATION=/tmp
+  URL=https://dzstore.site
