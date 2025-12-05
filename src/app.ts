@@ -18,6 +18,7 @@ import RAnalyzeRoute from './modules/analyzenig/analyzing.route.js'
 
 import JUpload from './modules/upload/upload.job.js'
 import { UD } from './shared/statics.js';
+const route = express.Router()
 
 app.use(cookieParser())
 app.use(express.json())
@@ -26,24 +27,25 @@ app.use(cors({
   credentials: true
 }))
 
-app.use('/uploads', express.static(UD))
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
+route.use('/uploads', express.static(UD))
+route.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 
-app.use((req, res, next)=> {
+route.use((req, res, next)=> {
   if (! req.body) req.body = {};
   next()
 })
 
-app.use('/user', RUserRoute)
-app.use('/like', RLikeRoute)
-app.use('/upload', RUploadRoute)
-app.use('/store', RStoreRoute)
-app.use('/product', RProductRoute)
-app.use('/order', ROrderRoute)
-app.use('/category', RCategoryRoute)
-app.use('/search', RSearchRoute)
-app.use('/analyzing', RAnalyzeRoute)
-app.use('/shopping-cart', RCartRoute)
+
+route.use('/user', RUserRoute)
+route.use('/like', RLikeRoute)
+route.use('/upload', RUploadRoute)
+route.use('/store', RStoreRoute)
+route.use('/product', RProductRoute)
+route.use('/order', ROrderRoute)
+route.use('/category', RCategoryRoute)
+route.use('/search', RSearchRoute)
+route.use('/analyzing', RAnalyzeRoute)
+route.use('/shopping-cart', RCartRoute)
 
 
 
@@ -53,5 +55,6 @@ const jobs: Function[] = [
 
 jobs.forEach((j)=> j())
 
+app.use('/api', route)
 
 export default app;
