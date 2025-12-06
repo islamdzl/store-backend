@@ -1,1 +1,0 @@
-{"version":3,"file":"system-error.d.ts","sourceRoot":"","sources":["../../src/shared/system-error.ts"],"names":[],"mappings":"AAGA,MAAM,CAAC,OAAO,OAAO,WAAY,SAAQ,KAAK;IAC5C,MAAM,CAAC,SAAS,EAAE,MAAM,CAAkB;gBAE9B,OAAO,EAAE,MAAM;IAK3B,QAAQ,CAAC,KAAK,EAAE,GAAG;IAInB,IAAI,CAAC,KAAK,EAAE,MAAM;CAGnB;AAED,eAAO,MAAM,gBAAgB,GAAI,OAAO,GAAG,EAAE,QAAQ,MAAM,SAU1D,CAAA"}

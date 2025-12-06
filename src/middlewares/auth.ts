@@ -33,7 +33,7 @@ export const getUser: (force: boolean, adminOnly?: boolean)=> Handler = (force, 
         .reLogIn()
       }
 
-      if (adminOnly && ! isAdmin(user.email)) {
+      if (adminOnly && ! await isAdmin(user.email)) {
         throw new AppResponse(409)
         .setScreenMessage('Forbiden', ScreenMessageType.ERROR)
       }

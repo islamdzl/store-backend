@@ -13,5 +13,16 @@
     "tiktok": "https://tiktok.com/@islamdzl7",
     "instagram": "https://instagram.com/",
     "facebook": "https://facebook.com/"
+  },
+  "pixels": {
+    "facebook": [
+      "123456789012345"
+    ],
+    "tiktok": [
+      "123456789012345"
+    ]
+  },
+  "private": {
+    "admins": []
   }
 }

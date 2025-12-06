@@ -30,7 +30,7 @@ export const register: (req: Req, res: Res)=> Promise<unknown> = async(req, res)
     }
     const newUser = await UserService.create(userInfo)
     
-    const response = UserService.loginResponse(newUser.toJSON(), res);
+    const response = await UserService.loginResponse(newUser.toJSON(), res);
     useAppResponse(res, 
       new AppResponse(200)
       .setData(response)
@@ -58,7 +58,7 @@ export const login: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> 
       .setScreenMessage('Account not found', ScreenMessageType.ERROR)
     }
 
-    const response = UserService.loginResponse(user.toJSON(), res)
+    const response = await UserService.loginResponse(user.toJSON(), res)
     useAppResponse(res, 
       new AppResponse(200)
       .setData(response)
@@ -97,7 +97,7 @@ export const get: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
     }
 
     const response: any = account.toJSON()
-    response.isAdmin = Services.isAdmin(account.email)
+    response.isAdmin = await Services.isAdmin(account.email)
     delete response.password
     useAppResponse(res, 
       new AppResponse(200)

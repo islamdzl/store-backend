@@ -73,7 +73,7 @@ export const create: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
   const user = req.user!;
 
   try {
-    if (! Services.isAdmin(user.email)) {
+    if (! await Services.isAdmin(user.email)) {
       throw new AppResponse(409)
       .setScreenMessage('Forbidden Action', ScreenMessageType.ERROR)
     }

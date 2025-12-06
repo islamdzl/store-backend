@@ -1,12 +1,19 @@
 import StoreService from './store.service.js'
+import * as Services from '../../shared/services.js'
 import UploadService, { } from '../upload/upload.service.js'
 import * as StoreValidate from './store.validate.js'
 import AppResponse, { useAppResponse, catchAppError, ScreenMessageType } from '../../shared/app-response.js';
 
 
 export const get: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
+  const user = req.user;
   try {
-    const store = await StoreService.getStore();
+    let IsAdmin = false;
+    if (user && await Services.isAdmin(user!.email)) {
+      IsAdmin = true;
+    }
+    const store = await StoreService.getStore(IsAdmin);
+
     const response = new AppResponse(200)
     .setData(store)
     useAppResponse(res, response)
@@ -48,9 +55,11 @@ export const update: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
       .Execute()
     }
 
+    const result = await StoreService.updateStore(value)
+
     useAppResponse(res, 
       new AppResponse(200)
-      .setData(await StoreService.updateStore(value))
+      .setData(result)
       .setScreenMessage('Updated successfully', ScreenMessageType.INFO)
     )
   }catch(error) {

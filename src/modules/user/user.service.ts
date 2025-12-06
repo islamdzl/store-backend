@@ -17,7 +17,7 @@ export const ifExist: (condition: Partial<User>)=> Promise<boolean> = async(cond
 }
 
 
-export const loginResponse: (user: User, res: Res)=> User.LoginResponse = (user, res)=> {
+export const loginResponse: (user: User, res: Res)=> Promise<User.LoginResponse> = async(user, res)=> {
 
   const jwtPayload: IJWTPayload = {
     _id: user._id
@@ -36,7 +36,7 @@ export const loginResponse: (user: User, res: Res)=> User.LoginResponse = (user,
     email: user.email,
     picture: user.picture,
     username: user.username,
-    isAdmin: Services.isAdmin(user.email),
+    isAdmin: await Services.isAdmin(user.email),
     token
   }
   return loginResponse;
