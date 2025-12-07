@@ -95,3 +95,21 @@ export const productId = (data: unknown)=> {
     productId: Joi.string().hex().length(24).required()
   }).validate(data) as ValidationResult<{productId: string}> 
 }
+
+
+export const byeAll = (data: unknown)=> {
+  return Joi.object<Cart.Request.ByeAll>({
+    buyingDetails: buyingDetailsValidationObject,
+    products: Joi.array().has(
+      Joi.object<Cart.Request.Bye.Product>({
+        productId: Joi.string().hex().length(24).required(),
+        count: Joi.number().min(1).max(1000).required(),
+        color: Joi.number().optional(),
+        type: Joi.object<Product.Request.Buy.Type>({
+          selectedIndex: Joi.number().min(0),
+          typeName: Joi.string().min(1).max(60)
+        })
+      })
+    )
+  }).validate(data) as ValidationResult<Cart.Request.ByeAll>
+}

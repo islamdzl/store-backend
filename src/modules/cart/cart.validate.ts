@@ -1,4 +1,5 @@
 import Joi, { type ValidationResult } from "joi";
+import { buyingDetailsValidationObject } from '../user/user.validate.js'
 
 export const addProduct = (data: unknown)=> {
   return Joi.object<Cart.AddItem>({

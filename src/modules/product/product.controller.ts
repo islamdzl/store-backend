@@ -282,3 +282,58 @@ export const bye: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
   }
 }
 
+
+export const byeMany: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
+  const data = req.body!;
+  const user = req.user;
+
+  try {
+    const { error, value } = ProductValidate.byeAll(data);
+    if (error) {
+      throw new AppResponse(400)
+      .setScreenMessage(error.message, ScreenMessageType.ERROR)
+    }
+
+    const promises = value.products.map((item)=> new Promise(async(resolve, reject)=> {
+      try {
+        const order = await Services.withSession( async(session)=> {
+          const product = await ProductService.getProduct(item.productId, true) as HydratedDocument<Product>;
+          const newOrder: Order.Create = {
+            count: item.count,
+            status: 'PENDING' as Order.Status,
+            product: product._id,
+            userId: user?._id,
+            color: item.color,
+            types: [], // set after
+            productPrice: product.price, // calc after
+            promo: Number(product.promo || 0),
+            deliveryPrice: Number(product.delivery || 0),
+            buyingDetails: value.buyingDetails!,
+          }
+          await ProductService.handleBuying(product.toJSON(), {
+            count: item.count,
+            types: [],
+            color: undefined
+          }, session)
+        })
+        
+        resolve(order)
+      }catch (e) {
+        reject(e)
+      }
+    }))
+    const processes = await Promise.allSettled(promises)
+    // @ts-ignore
+    const orders: Order.Create[] = processes.filter((proce)=> proce.status === 'fulfilled').map((proce)=> proce.value)
+    await Promise.allSettled(orders.map((o)=> OrderService.create(o)))
+
+    useAppResponse(res,
+      new AppResponse(200)
+      .setData(true)
+      .setScreenMessage(`Bye Successfully ${orders.length} Orders`, ScreenMessageType.INFO)
+    )
+  }catch(error) {
+    catchAppError(error, res, 'Product Controller bye')
+  }
+}
+

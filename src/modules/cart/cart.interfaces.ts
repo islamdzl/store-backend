@@ -23,5 +23,22 @@ declare global {
       productId: string;
       cartItemId: string;
     }
+
+
+
+    namespace Request {
+      namespace Bye {
+        interface Product {
+          productId: ID;
+          count: number;
+          type?: Product.Request.Buy.Type
+          color?: string;
+        }
+      }
+      interface ByeAll {
+        buyingDetails: User.BuyingDetails;
+        products: Cart.Request.Bye.Product[];
+      }
+    }
   }
 }

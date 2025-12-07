@@ -85,3 +85,8 @@ export const decrement: (userId: ID, cartItemId: ID, session?: ClientSession)=> 
   }
   return cartItem;
 }
+
+
+export const cleanCart:(userId: ID)=> Promise<void> = async(userId)=> {
+  await CartModel.deleteMany({ownerId: userId})
+}

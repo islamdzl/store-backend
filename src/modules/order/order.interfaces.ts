@@ -4,13 +4,13 @@ declare global {
     product: ID;
     userId?: ID;
     count: number;
-    message?: string;
     productPrice: number;
-    deliveryPrice: number;
-    status: Order.Status;
     color?: string; 
     types: Order.Type[]; 
     promo: number;
+    deliveryPrice: number;
+    message?: string;
+    status: Order.Status;
     buyingDetails: User.BuyingDetails;
     createdAt: Date;
     updatedAt: Date;
