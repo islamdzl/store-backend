@@ -315,6 +315,7 @@ export const byeMany: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=
             types: [],
             color: undefined
           }, session)
+          return newOrder;
         })
         
         resolve(order)
