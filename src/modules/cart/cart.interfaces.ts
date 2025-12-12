@@ -31,7 +31,7 @@ declare global {
         interface Product {
           productId: ID;
           count: number;
-          type?: Product.Request.Buy.Type
+          types?: Product.Request.Buy.Type[]
           color?: string;
         }
       }
