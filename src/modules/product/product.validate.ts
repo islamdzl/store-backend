@@ -25,8 +25,8 @@ export const create = (data: unknown)=> {
     ).optional().allow(null),
     keyVal: Joi.array().items(
       Joi.object<Product.KeyVal>({
-        key: Joi.string().min(2).max(20).required(),
-        val: Joi.string().min(1).max(70).required()
+        key: Joi.string().min(2).max(100).required(),
+        val: Joi.string().min(1).max(300).required()
       }).optional()
     ).min(0).default([]),
   })
@@ -64,8 +64,8 @@ export const update = (data: unknown)=> {
     ).optional().allow(null),
     keyVal: Joi.array().items(
       Joi.object<Product.KeyVal>({
-        key: Joi.string().min(2).max(20).required(),
-        val: Joi.string().min(1).max(70).required()
+        key: Joi.string().min(2).max(100).required(),
+        val: Joi.string().min(1).max(300).required()
       }).optional()
     ).min(0).optional(),
 
