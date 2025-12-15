@@ -67,7 +67,7 @@ export const getSellData: (data: Analyzing.Request.SellData)=> Promise<Analyzing
     skip: data.skip,
     date: data.date,
     info: [
-      {name: `Last ${timeName} Orders`, value: reversedList[0]!.count},
+      {name: `Last ${timeName} Orders`, value: reversedList[0]?.count || 0},
       {name: `Last 3 ${timeName}s Orders`, value: reversedList.slice(0, 3).reduce((value, item)=> value += item.count, 0)},
       {name: `Last 6 ${timeName}s Orders`, value: reversedList.slice(0, 6).reduce((value, item)=> value += item.count, 0)}
     ]
@@ -101,13 +101,12 @@ export const getProfitData: (data: Analyzing.Request.ProfitData)=> Promise<Analy
     if (index >= 0 && index < Loops) {
       profite[index]!.deliveryPrice += p.deliveryPrice;
       profite[index]!.productsPrice += p.productPrice;
-      profite[index]!.totalPrice += (p.productPrice * p.count)
+      profite[index]!.totalPrice += (p.productPrice * p.count) || 0
       profite[index]!.dateTime = profite[index]!.dateTime?? new Date(p.createdAt).setHours(0, 0, 0, 0)
     }
   })
 
   const reversedList = [...profite].reverse();
-
   const result: Analyzing.Response.ProfitData = {
     type: 'PROFTE',
     totalPrice: profite.reduce((value, item)=> value += item.productsPrice, 0),
@@ -115,7 +114,7 @@ export const getProfitData: (data: Analyzing.Request.ProfitData)=> Promise<Analy
     date: data.date,
     skip: data.skip,
     info: [
-      {name: `Last ${timeName} Profits`, value: reversedList[0]!.totalPrice},
+      {name: `Last ${timeName} Profits`, value: reversedList[0]?.totalPrice || 0},
       {name: `Last 3 ${timeName}s Profits`, value: reversedList.slice(0, 3).reduce((value, item)=> value += item.totalPrice, 0) + 'DA'},
       {name: `Last 6 ${timeName}s Profits`, value: reversedList.slice(0, 6).reduce((value, item)=> value += item.totalPrice, 0) + 'DA'}
     ]

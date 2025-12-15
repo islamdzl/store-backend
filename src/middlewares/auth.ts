@@ -10,7 +10,6 @@ export const getUser: (force: boolean, adminOnly?: boolean)=> Handler = (force, 
   return async(req: Req, res: Res, next)=> {
     try {
       const token = req.cookies.authorization ?? req.headers.authorization;
-
       if (! force && !token) {
         return next()
       }

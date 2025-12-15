@@ -5,6 +5,6 @@ const Router = express.Router()
 
 Router.post('/sell',   Auth.getUser(true, true), AnalyzeController.getSell)
 Router.post('/profite', Auth.getUser(true, true), AnalyzeController.getProfitData)
-Router.post('/',       Auth.getUser(true, true), AnalyzeController.genral)
+Router.post('/',        Auth.getUser(true, true), AnalyzeController.genral)
 
 export default Router;  

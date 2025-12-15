@@ -15,7 +15,7 @@ export const single =  async(req: Req, res: Res)=> {
       throw new AppResponse(400)
       .setScreenMessage(error.message, ScreenMessageType.ERROR)
     }
-    await UploadService.uploadFile(path.join(TD, req.uploadFileName!), value.process)
+    await UploadService.uploadFile(path.join(TD, req.uploadFileName! || "notExist"), value.process)
     const doc = await UploadService.declareFile(file, user, value.process)
     
     const response = {

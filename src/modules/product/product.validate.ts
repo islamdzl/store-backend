@@ -5,7 +5,7 @@ export const create = (data: unknown)=> {
   return Joi.object<Product.Request.Create>({
     name: Joi.string().trim().min(3).max(25).required(),
     price: Joi.number().min(0).max(999999999).required(),
-    description: Joi.string().min(0).max(300).optional().allow(null),
+    description: Joi.string().min(0).max(3500).optional().allow(null),
     isActive: Joi.boolean().default(true),
     quantity: Joi.number().min(1).max(999999).optional().allow(null),
     delivery: Joi.number().min(0).allow(null),
@@ -39,7 +39,7 @@ export const update = (data: unknown)=> {
     productId: Joi.string().hex().length(24).required(),
     name: Joi.string().trim().min(3).max(25).optional(),
     price: Joi.number().min(0).max(999999999).optional(),
-    description: Joi.string().max(300).min(0).optional(),
+    description: Joi.string().max(3500).min(0).optional(),
     promo: Joi.number().min(0).max(99999999).optional().allow(null),
     isActive: Joi.boolean().optional(),
     quantity: Joi.number().min(1).max(999999).optional().allow(null),
