@@ -83,6 +83,10 @@ export const decrement: (userId: ID, cartItemId: ID, session?: ClientSession)=> 
     throw new AppResponse(404)
     .setScreenMessage('Cart Item not found', ScreenMessageType.ERROR)
   }
+
+  if (cartItem.count <= 0) {
+    throw new AppResponse(400)
+  }
   return cartItem;
 }
 

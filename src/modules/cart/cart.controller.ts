@@ -79,7 +79,10 @@ export const encrement: (req: Req, res: Res)=> Promise<unknown> = async(req, res
       .setScreenMessage(error.message, ScreenMessageType.WARN)
     }
 
-    const cartItem = await CartService.encrement(user._id, value.cartItemId, /** session */)
+    const cartItem = await Services.withSession(async(session)=> {
+      return await CartService.encrement(user._id, value.cartItemId, session)
+    })
+    
     useAppResponse(res, 
       new AppResponse(200)
       .setData(cartItem)
@@ -100,7 +103,10 @@ export const decrement: (req: Req, res: Res)=> Promise<unknown> = async(req, res
       .setScreenMessage(error.message, ScreenMessageType.WARN)
     }
 
-    const cartItem = await CartService.decrement(user._id, value.cartItemId, /** session */)
+    const cartItem = await Services.withSession(async(session)=> {
+      return await CartService.decrement(user._id, value.cartItemId, session)
+    })
+    
     useAppResponse(res, 
       new AppResponse(200)
       .setData(cartItem)
