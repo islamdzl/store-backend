@@ -18,6 +18,11 @@ declare global {
       };
     }
 
+    interface RelatedContent {
+      productId: ID;
+      categoryId?: ID;
+    }
+
     interface Explore extends FindProductsFilter {
       keyWord: string;
     }

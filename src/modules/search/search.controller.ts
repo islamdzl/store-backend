@@ -40,3 +40,23 @@ export const explore: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=
     catchAppError(error, res, 'Search Controller explore')
   }
 }
+
+export const relqted: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
+  const data = req.body!
+  const user = req.user!
+
+  try {
+    const { error, value } = SearchValidate.relqted(data)
+    if (error) {
+      throw new AppResponse(400)
+      .setScreenMessage(error.message, ScreenMessageType.ERROR)
+    }
+
+    const products = await SearchService.related(value.productId, value.categoryId)
+
+    throw new AppResponse(200) 
+    .setData(products)
+  }catch (error) {
+    catchAppError(error, res, 'Search Controller relqted')
+  }
+}
