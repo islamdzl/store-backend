@@ -28,6 +28,7 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN ?? '*',
   credentials: true
 }))
+app.set('trust proxy', 1);
 
 route.use('/uploads', express.static(UD))
 route.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))

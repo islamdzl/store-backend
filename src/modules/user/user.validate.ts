@@ -2,9 +2,9 @@ import Joi, { type ValidationResult } from "joi"
 
 
 export const buyingDetailsValidationObject = Joi.object<User.BuyingDetails>({
-  city: Joi.string().min(3).max(25).trim(),
+  city: Joi.string().min(3).max(50).trim(),
   deliveryToHome: Joi.boolean(),
-  fullName: Joi.string().min(1).max(25).trim(),
+  fullName: Joi.string().min(1).max(50).trim(),
   note: Joi.string().min(0).max(300),
   phone1: Joi.string().min(9).max(11).trim(),
   phone2: Joi.string().min(9).max(11).trim().allow(''),
