@@ -71,7 +71,7 @@ export const related:(productId: ID, category?: ID)=> Promise<Product[]> = async
 
   const relatedProducts = await ProductModel.find(query, projection)
   .sort({ score: { $meta: 'textScore' } })
-  .limit(20)
+  .limit(10)
   .lean()
   .exec()
 

@@ -5,14 +5,14 @@ declare global {
     description: string;
     contact: Store.Contact;
     media: Store.Media;
-    pixels: Store.Pixels;
     private?: Store.Private;
   }
   
   namespace Store {
     interface Private {
       admins: string[];
-      superAdmins?: string[]
+      superAdmins?: string[];
+      pixels: Store.Pixels;
     }
 
     interface Pixels {
@@ -34,9 +34,9 @@ declare global {
     interface Update extends Omit<Partial<Store>, ''> {
       logo?: string;
       banner?: string;
-      pixels: Store.Pixels;
       private: {
         admins: string[]
+        pixels: Store.Pixels;
       }
     }
   }

@@ -4,6 +4,7 @@ import * as UserValidation from './user.validate.js'
 import * as Utils from '../../shared/utils.js'
 import * as Services from '../../shared/services.js'
 import type { HydratedDocument } from "mongoose";
+import Track from "../pixel/index.js";
 
 export const register: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
   const data = req.body!;
@@ -30,6 +31,7 @@ export const register: (req: Req, res: Res)=> Promise<unknown> = async(req, res)
     }
     const newUser = await UserService.create(userInfo)
     
+    Track("LOGGEDIN" as Pixle.Events)
     const response = await UserService.loginResponse(newUser.toJSON(), res);
     useAppResponse(res, 
       new AppResponse(200)
@@ -58,6 +60,7 @@ export const login: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> 
       .setScreenMessage('Account not found', ScreenMessageType.ERROR)
     }
 
+    Track("LOGGEDIN" as Pixle.Events)
     const response = await UserService.loginResponse(user.toJSON(), res)
     useAppResponse(res, 
       new AppResponse(200)
@@ -96,6 +99,7 @@ export const get: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
       .setData(null) 
     }
 
+    Track("LOGGEDIN" as Pixle.Events)
     const response: any = account.toJSON()
     response.isAdmin = await Services.isAdmin(account.email)
     delete response.password

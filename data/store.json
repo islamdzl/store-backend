@@ -14,15 +14,15 @@
     "instagram": "https://instagram.com/",
     "facebook": "https://facebook.com/"
   },
-  "pixels": {
-    "facebook": [
-      "123456789012345"
-    ],
-    "tiktok": [
-      "123456789012345"
-    ]
-  },
   "private": {
-    "admins": []
+    "admins": [],
+    "pixels": {
+      "facebook": [
+        "aaaaaaaaaaaaaaaaa"
+      ],
+      "tiktok": [
+        "bbbbbbbbbb"
+      ]
+    }
   }
 }

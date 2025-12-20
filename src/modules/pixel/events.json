@@ -1,0 +1,34 @@
+{
+  "CART_ADD" : {
+    "FACEBOOK": "AddToCart",
+    "TIKTOK": "AddToCart"
+  },
+  "CART_REMOVE": {
+    "FACEBOOK": "RemoveFromCart",
+    "TIKTOK": "RemoveFromCart"
+  },
+  "LIKE_ADD": {
+    "FACEBOOK": "Like",
+    "TIKTOK": "Like"
+  },
+  "LIKE_REMOVE": {
+    "FACEBOOK": "Unlike",
+    "TIKTOK": "Unlike"
+  },
+  "VIEW_PAGE": {
+    "FACEBOOK": "PageView",
+    "TIKTOK": "PageView"
+  },
+  "VIEW_PRODUCT": {
+    "FACEBOOK": "ViewContent",
+    "TIKTOK": "ViewContent"
+  },
+  "LOGGEDIN": {
+    "FACEBOOK": "CompleteRegistration",
+    "TIKTOK": "CompleteRegistration"
+  },
+  "BUY": {
+    "FACEBOOK": "Purchase",
+    "TIKTOK": "CompletePayment"
+  }
+}

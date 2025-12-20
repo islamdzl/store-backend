@@ -3,6 +3,7 @@ import * as SearchService from './search.service.js'
 import * as CartService from '../cart/cart.service.js'
 import * as LikesService from '../like/like.service.js'
 import AppResponse, { catchAppError, ScreenMessageType } from "../../shared/app-response.js"
+import Track from '../pixel/index.js'
 
 export const explore: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
   const data = req.body;
@@ -24,6 +25,7 @@ export const explore: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=
 
     const products = await SearchService.findProducts(value.keyWord, filter)
     const productsResult = await LikesService.ifLiked(await CartService.ifCartHas(products, user?._id), user?._id)
+    Track("VIEW_PAGE" as Pixle.Events)
 
     const response = {
       products: productsResult,

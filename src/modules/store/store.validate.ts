@@ -15,10 +15,6 @@ export const update = (data: unknown)=> {
     description: Joi.string().max(300),
     logo: Joi.string().hex().length(24),
     banner: Joi.string().hex().length(24),
-    pixels: Joi.object<Store.Pixels>({
-      facebook: Joi.array().items(Joi.string()).min(0).max(10),
-      tiktok: Joi.array().items(Joi.string()).min(0).max(10)
-    }),
     contact: Joi.object<Store.Contact>({
       email: Joi.string().email(),
       location: Joi.string().min(10).max(50),
@@ -31,7 +27,11 @@ export const update = (data: unknown)=> {
       tiktok: Joi.string().min(10).max(100),
     }),
     private: Joi.object({
-      admins: Joi.array().items(Joi.string().email())
+      admins: Joi.array().items(Joi.string().email()),
+      pixels: Joi.object<Store.Pixels>({
+        facebook: Joi.array().items(Joi.string()).min(0).max(10),
+        tiktok: Joi.array().items(Joi.string()).min(0).max(10)
+      }),
     })
   }).validate(data);
 }

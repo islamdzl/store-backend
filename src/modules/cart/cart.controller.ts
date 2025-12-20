@@ -4,6 +4,7 @@ import * as CartService from './cart.service.js'
 import * as ProductService from '../product/product.service.js'
 import * as Services from '../../shared/services.js'
 import * as OrderService from '../order/order.service.js'
+import Track from '../pixel/index.js';
 import type { HydratedDocument } from 'mongoose';
 
 export const get: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
@@ -36,7 +37,7 @@ export const addProduct: (req: Req, res: Res)=> Promise<unknown> = async(req, re
       product: value.productId!,
       count: value.count,
     }
-
+    Track("CART_ADD" as Pixle.Events)
     const cart = await CartService.addProduct(user._id, cartItem, /** session */)
     useAppResponse(res, 
       new AppResponse(200)
@@ -58,6 +59,7 @@ export const removeProduct: (req: Req, res: Res)=> Promise<unknown> = async(req,
       .setScreenMessage(error.message, ScreenMessageType.WARN)
     }
 
+    Track("CART_REMOVE" as Pixle.Events)
     const cart = await CartService.removeProduct(user._id, value.productId, value.cartItemId, /** session */)
     useAppResponse(res, 
       new AppResponse(200)
@@ -158,6 +160,7 @@ export const byeAll: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
             return newOrder;
           })
 
+          Track("BUY" as Pixle.Events)
           resolve(newOrder)
         }catch(e) {
           reject()

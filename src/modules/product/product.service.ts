@@ -2,6 +2,7 @@ import { Types, type ClientSession, type HydratedDocument } from "mongoose";
 import ProductModel from "./product.model.js";
 import AppResponse, { ScreenMessageType } from "../../shared/app-response.js";
 import UploadService from '../upload/upload.service.js';
+import OrdersModel from '../order/order.model.js'
 
 export const getProduct: (productId: ID, force?: boolean)=> Promise<HydratedDocument<Product> | null> = (productId, force)=> {
   const product = ProductModel.findById(productId);
@@ -90,7 +91,7 @@ export const handleBuying: (product: Product, data: IhandleBuyingUserData,  sess
     throw new AppResponse(400)
     .setScreenMessage(`Remaining ${product.quantity} only`, ScreenMessageType.WARN)
   }
-
+  
   if (data.color) {
     const isExistColor = product.colors.find((c)=> data.color)
     if (! isExistColor) {
@@ -111,4 +112,27 @@ export const handleBuying: (product: Product, data: IhandleBuyingUserData,  sess
   }
 
   await changequantityAndReqursts(product._id, - data.count, 1, true, session)
+}
+
+
+export const handleDoubleOrder: (user: User, productId: ID, scends?: number)=> Promise<void> = async(user, productId, scends = 20)=> {
+
+  const ST = new Date()
+  const ET = new Date(ST.getTime() - (1000 * scends))
+
+  const lastOrders = await OrdersModel.find({
+    product: productId,
+    userId: user._id,
+    createdAt: {
+      $gte: ET,
+      $lte: ST,
+    },
+  }, {_id: 1})
+  .lean()
+  .exec()
+
+  if (lastOrders.length !== 0) {
+    throw new AppResponse(400)
+    .setScreenMessage('Already Buied!', ScreenMessageType.INFO)
+  }
 }

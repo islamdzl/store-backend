@@ -7,3 +7,5 @@
   ADMINS=[<email>]
   ROOT_STORAGE_APPLICATION=/tmp
   URL=https://dzstore.site
+  ACCESS_TOKEN_FACEBOOK
+  ACCESS_TOKEN_TIKTOK

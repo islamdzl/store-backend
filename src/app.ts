@@ -17,6 +17,8 @@ import RSearchRoute from './modules/search/search.route.js'
 import RAnalyzeRoute from './modules/analyzenig/analyzing.route.js'
 
 import JUpload from './modules/upload/upload.job.js'
+import JPixle from './modules/pixel/pixle.job.js'
+
 import { UD } from './shared/statics.js';
 const route = express.Router()
 
@@ -50,7 +52,8 @@ route.use('/shopping-cart', RCartRoute)
 
 
 const jobs: Function[] = [
-  JUpload
+  JUpload,
+  JPixle
 ]
 
 jobs.forEach((j)=> j())

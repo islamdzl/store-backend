@@ -9,6 +9,7 @@ import * as LikeService from '../like/like.service.js'
 import UploadService, { copyFile, removeFile, reProcess } from '../upload/upload.service.js'
 import AppResponse, { useAppResponse, catchAppError, ScreenMessageType } from '../../shared/app-response.js';
 import type { HydratedDocument } from 'mongoose';
+import Track from '../pixel/index.js'
 
 
 /**
@@ -26,6 +27,8 @@ export const get: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
       throw new AppResponse(400)
       .setScreenMessage(error.message, ScreenMessageType.ERROR)
     }
+
+    Track("VIEW_PRODUCT" as Pixle.Events)
     const product = await ProductService.getProduct(value.productId, true);
     const responesProducts = await LikeService.ifLiked(await CartService.ifCartHas([product?.toJSON()!], user?._id), user?._id)
     useAppResponse(res, 
@@ -264,6 +267,9 @@ export const bye: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
           return { key: type!.typeName, val: type!.values[t.selectedIndex]!}
         })
       }
+  
+      Track("BUY" as Pixle.Events)
+      await ProductService.handleDoubleOrder(user!, product._id)
       await ProductService.handleBuying(product.toJSON(), {
         count: value.count,
         types: value.types,
@@ -310,11 +316,14 @@ export const byeMany: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=
             deliveryPrice: Number(product.delivery || 0),
             buyingDetails: value.buyingDetails!,
           }
+
+          Track("BUY" as Pixle.Events)
           await ProductService.handleBuying(product.toJSON(), {
             count: item.count,
             types: [],
             color: undefined
           }, session)
+
           return newOrder;
         })
         
@@ -337,4 +346,3 @@ export const byeMany: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=
     catchAppError(error, res, 'Product Controller bye')
   }
 }
-

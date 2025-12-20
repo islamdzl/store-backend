@@ -12,16 +12,21 @@ export class DefaultStore implements Store {
   description = "Description";
   contact: Store.Contact = {};
   media: Store.Media = {};
-  pixels: Store.Pixels = {
-    facebook: [],
-    tiktok: [],
-  }
   private: Store.Private = {
-    admins: []
+    admins: [],
+    pixels: {
+      facebook: [],
+      tiktok: [],
+    }
   }
 }
 
 class StoreService {
+
+  public static async getPrivateStore(): Promise<Store.Private> {
+    const store = await this.getStore(true)
+    return store.private!
+  }
 
   public static async getAdminsList() {
     const store = await this.getStore(true)
