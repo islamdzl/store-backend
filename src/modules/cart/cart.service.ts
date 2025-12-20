@@ -38,7 +38,7 @@ export const getCart: (userId: ID)=> Promise<Cart[]> = async(userId)=> {
   return cartItems;
 }
 
-export const ifCartHas: (product: Product[] | Search.ProductResponse[], userId?: ID)=> Promise<Search.ProductResponse[]> = async(products, userId)=> {
+export const ifCartHas: (products: Product[] | Search.ProductResponse[], userId?: ID)=> Promise<Search.ProductResponse[]> = async(products, userId)=> {
   if (userId) {
     const cart = await CartModel.find({ownerId: userId})
     .lean()

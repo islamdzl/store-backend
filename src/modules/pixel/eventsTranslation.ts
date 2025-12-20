@@ -11,6 +11,6 @@ export default async function Translation(event: Pixle.Events, platform: Pixle.P
 
 export const loadEvents = async()=> {
   if (! Events) {
-    Events = await import('./events.json')
+    Events = await import('./events.json') as any;
   }
 }

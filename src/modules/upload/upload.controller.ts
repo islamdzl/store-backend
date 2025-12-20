@@ -65,8 +65,9 @@ export const many =  async(req: Req, res: Res)=> {
     useAppResponse(res, 
       new AppResponse(200)
       .setData(
-        processResult.filter((p)=> p.status === 'fulfilled')
-        .map((p)=> p.value)
+        processResult
+        .filter((p)=> p.status === 'fulfilled')
+        .map((p)=> p.value as any)
       )
     )
   }catch(error) {

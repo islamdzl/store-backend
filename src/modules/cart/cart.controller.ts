@@ -169,7 +169,7 @@ export const byeAll: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=>
     })
 
     const processes = await Promise.allSettled(promises)
-    const orders = processes.filter((promise)=> promise.status === 'fulfilled').map((proce)=> proce.value)
+    const orders = processes.filter((promise: PromiseSettledResult<Order | any>)=> promise.status === 'fulfilled').map((proce)=> proce.value)
 
     // @ts-ignore
     await Promise.all(orders.map((o: Order.Create)=> OrderService.create(o)))

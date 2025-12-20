@@ -214,8 +214,8 @@ export default class SaveFile {
   async Execute()  {
     let filesToRemove: HydratedDocument<Upload>[] = []
     let filesToSave: HydratedDocument<Upload>[] = []
-    let filesToRemoveRusolt: undefined[] | Upload[] = []
-    let filesToSaveRusolt: undefined[] | Upload[] = []
+    let filesToRemoveRusolt: PromiseSettledResult<any>[] | Upload[] = []
+    let filesToSaveRusolt:   PromiseSettledResult<any>[] | Upload[] = []
 
     if (! this._processTimeStart) this._processTimeStart = Date.now() 
 

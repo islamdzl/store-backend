@@ -67,7 +67,7 @@ export const acceptMany: (updates: Order.Request.AcceptMany[])=> Promise<{count:
     }))
     
   )
-  const updatedOrders = result.filter((r)=> r.status === 'fulfilled').map((r)=> r.value!.toJSON())
+  const updatedOrders = result.filter((r: PromiseSettledResult<HydratedDocument<Order> | any>)=> r.status === 'fulfilled').map((r)=> r.value!.toJSON())
   PurchaseService.createMany(updatedOrders.map((o)=> ({
     deliveryPrice: o.deliveryPrice || 0,
     productPrice: o.productPrice   || 0,
