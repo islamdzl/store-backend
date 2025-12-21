@@ -115,14 +115,14 @@ export const handleBuying: (product: Product, data: IhandleBuyingUserData,  sess
 }
 
 
-export const handleDoubleOrder: (user: User, productId: ID, scends?: number)=> Promise<void> = async(user, productId, scends = 20)=> {
+export const handleDoubleOrder: (userId: ID, productId: ID, scends?: number)=> Promise<void> = async(userId, productId, scends = 20)=> {
 
   const ST = new Date()
   const ET = new Date(ST.getTime() - (1000 * scends))
 
   const lastOrders = await OrdersModel.find({
     product: productId,
-    userId: user._id,
+    userId: userId,
     createdAt: {
       $gte: ET,
       $lte: ST,

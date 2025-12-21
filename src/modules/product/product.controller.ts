@@ -30,7 +30,7 @@ export const get: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
 
     Track("VIEW_PRODUCT" as Pixle.Events)
     const product = await ProductService.getProduct(value.productId, true);
-    const responesProducts = await LikeService.ifLiked(await CartService.ifCartHas([product?.toJSON()!], user?._id), user?._id)
+    const responesProducts = await LikeService.ifLiked(await CartService.ifCartHas([product!.toJSON()], user?._id), user?._id)
     useAppResponse(res, 
       new AppResponse(200)
       .setData(responesProducts[0])
@@ -253,7 +253,7 @@ export const bye: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
         count: value.count,
         status: 'PENDING' as Order.Status,
         product: product._id,
-        userId: user?._id,
+        userId: user?._id || req.userRefrence,
         color: value.color,
         types: [], // set after
         productPrice: product.price, // calc after
@@ -269,7 +269,7 @@ export const bye: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
       }
   
       Track("BUY" as Pixle.Events)
-      await ProductService.handleDoubleOrder(user!, product._id)
+      await ProductService.handleDoubleOrder(user?._id || req.userRefrence, product._id)
       await ProductService.handleBuying(product.toJSON(), {
         count: value.count,
         types: value.types,
@@ -300,6 +300,10 @@ export const byeMany: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=
       .setScreenMessage(error.message, ScreenMessageType.ERROR)
     }
 
+    if (value.products.length === 0) {
+      throw new AppResponse(400)
+      .setScreenMessage('Please select products', ScreenMessageType.ERROR)
+    }
     const promises = value.products.map((item)=> new Promise(async(resolve, reject)=> {
       try {
         const order = await Services.withSession( async(session)=> {

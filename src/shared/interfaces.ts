@@ -4,6 +4,7 @@ import type { Types } from 'mongoose';
 declare global {
   export interface Res extends express.Response {}
   export interface Req extends express.Request {
+    userRefrence: ID;
     user?: User;
     uploadFileName?: string;
   }

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { type RequestHandler } from 'express';
 import path from 'path';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -20,6 +20,7 @@ import JUpload from './modules/upload/upload.job.js'
 import JPixle from './modules/pixel/pixle.job.js'
 
 import { UD } from './shared/statics.js';
+import userRefrence from './middlewares/userRefrence.js';
 const route = express.Router()
 
 app.use(cookieParser())
@@ -33,10 +34,7 @@ app.set('trust proxy', 1);
 route.use('/uploads', express.static(UD))
 route.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
 
-route.use((req, res, next)=> {
-  if (! req.body) req.body = {};
-  next()
-})
+route.use(userRefrence as RequestHandler)
 
 
 route.use('/user', RUserRoute)
