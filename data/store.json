@@ -7,7 +7,7 @@
     "phone1": "0774374148",
     "phone2": "0774374148"
   },
-  "logo": "6918ba009aeea0ad0bf26bf2",
+  "logo": "694b281cb50ce49e3cf892b6",
   "banner": "6918ba099aeea0ad0bf26c05",
   "media": {
     "tiktok": "https://tiktok.com/@islamdzl7",
@@ -23,6 +23,10 @@
       "tiktok": [
         "bbbbbbbbbb"
       ]
-    }
+    },
+    "superAdmins": [
+      "legbedjislam@gmail.com",
+      "example@email.com"
+    ]
   }
 }

@@ -9,10 +9,11 @@ export const get: (req: Req, res: Res)=> Promise<unknown> = async(req, res)=> {
   const user = req.user;
   try {
     let IsAdmin = false;
+    
     if (user && await Services.isAdmin(user!.email)) {
       IsAdmin = true;
     }
-    const store = await StoreService.getStore(IsAdmin);
+    const store = await StoreService.getStore(true);
 
     const response = new AppResponse(200)
     .setData(store)

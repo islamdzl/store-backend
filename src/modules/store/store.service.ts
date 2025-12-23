@@ -44,8 +44,9 @@ class StoreService {
   }
 
   public static async updateStore(dataToUpdate: Partial<Store>): Promise<Store> {
-    const oldStore = await this.getStore();
+    const oldStore = await this.getStore(true);
     const updatedStore = _.mergeWith({}, oldStore, dataToUpdate, this.updateDataReplace);
+    console.log(updatedStore)
     await this.writeStore(updatedStore);
 
     return this.buildPrivateData(updatedStore);
@@ -85,7 +86,7 @@ class StoreService {
   }
 
   private static updateDataReplace(objValue: unknown, srcValue: unknown) {
-    if (Array.isArray(objValue)) {
+    if (Array.isArray(srcValue)) {
       return srcValue;
     }
     return undefined;
