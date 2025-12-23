@@ -85,7 +85,7 @@ class StoreService {
   }
 
   private static updateDataReplace(objValue: unknown, srcValue: unknown) {
-    if (Array.isArray(srcValue)) {
+    if (Array.isArray(objValue)) {
       return srcValue;
     }
     return undefined;
